@@ -1,18 +1,25 @@
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
+
+ComboxEnable=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 160, 0)
+Comboxmain=gui.Groupbox(MayYaw, "MayYaw Features", 190, 10, 410, 0)
+DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 160, 0)
+Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
+Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: 1.0")
+Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
+DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: Maybe#2990")
 mainmenu=gui.Reference("MENU")
 wightscreen,hightscreen=draw.GetScreenSize()
-Enableyaw=gui.Checkbox(MayYaw, "Enableyaw", "Enable", 0)
-Enableindicators=gui.Checkbox(MayYaw, "Enableindicators", "Indicators", 0)
-Enablewatermark=gui.Checkbox(MayYaw, "Enablewatermark", "Watermark", 0)
-Enablekeybinds=gui.Checkbox(MayYaw,"Enablekeybinds","Keybinds",0)
-Enableradar=gui.Checkbox(MayYaw, "Enableradar", "Engine Radar", 0)
-Enablenightmode=gui.Checkbox(MayYaw, "Enablenightmode", "Night mode", 0)
-nightmodeslider=gui.Slider(MayYaw, "nightmodeslider", "Night mode value", 100, 1, 100 )
-modenight = entities.FindByClass("CEnvTonemapController")[1]
-Enablelowdelta=gui.Checkbox(MayYaw, "Enablelowdelta", "lowdelta", 0)
-EnableadvanceDT=gui.Checkbox(MayYaw, "Enableadvancedt", "Advance DT", 0)
-ComboxDTmode=gui.Combobox(MayYaw, "ComboxDtmode", "DT mode","Reliable","Faster","Fastest(Inacuracy)" )
-Enabledamageoverride=gui.Checkbox(MayYaw,"Enabledamageoverride","Damage override",0)
+Enableyaw=gui.Checkbox(ComboxEnable, "Enableyaw", "Enable", 0)
+Enableindicators=gui.Checkbox(Comboxmain, "Enableindicators", "Indicators", 0)
+Enablewatermark=gui.Checkbox(Comboxmain, "Enablewatermark", "Watermark", 0)
+Enablekeybinds=gui.Checkbox(Comboxmain,"Enablekeybinds","Keybinds",0)
+Enableradar=gui.Checkbox(Comboxmain, "Enableradar", "Engine Radar", 0)
+Enablenightmode=gui.Checkbox(Comboxmain, "Enablenightmode", "Night mode", 0)
+nightmodeslider=gui.Slider(Comboxmain, "nightmodeslider", "Night mode value", 100, 1, 100 )
+Enablelowdelta=gui.Checkbox(Comboxmain, "Enablelowdelta", "Lowdelta", 0)
+EnableadvanceDT=gui.Checkbox(Comboxmain, "Enableadvancedt", "Advanced DT", 0)
+ComboxDTmode=gui.Combobox(Comboxmain, "ComboxDtmode", "DT mode","Reliable","Faster","Fastest(Inacuracy)" )
+Enabledamageoverride=gui.Checkbox(Comboxmain,"Enabledamageoverride","Damage override",0)
 mindamagewindow=gui.Window("damagewindow","Damage Override", 0, 200, 200, 600 )
 mindamagewindow:SetOpenKey(45)
 textsliderdefault=gui.Slider(mindamagewindow, "textsliderdefault", "Default Min Damage", 0, 0, 0 )
@@ -26,10 +33,10 @@ autodmgoverrideslider=gui.Slider(mindamagewindow, "autodmgoverrideslider", "Auto
 ssg08dmgoverrideslider=gui.Slider(mindamagewindow, "ssg08dmgoverrideslider", "Scout Override Min Damage", 0, 1, 100 )
 heavypistoldmgoverrideslider=gui.Slider(mindamagewindow, "heavypistoldmgoverrideslider", "Heavy Pistol Override Min Damage", 0, 1, 100 )
 dmgoverridekeybox=gui.Keybox(mindamagewindow,"dmgoverridekeybox","Damage overrride", 0 )
-Enableautobuy=gui.Checkbox(MayYaw, "Enableautobuy", "Autobuy", 0)
-Comboxautobuy=gui.Combobox(MayYaw, "Comboxautobuy", "Autobuy items","Scar + Armor","Scout + Armor","AWP + Armor" )
-watermarkcolor=gui.ColorPicker(MayYaw,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
-keybindscolor=gui.ColorPicker(MayYaw,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
+Enableautobuy=gui.Checkbox(Comboxmain, "Enableautobuy", "Autobuy", 0)
+Comboxautobuy=gui.Combobox(Comboxmain, "Comboxautobuy", "Autobuy items","Scar + Armor","Scout + Armor","AWP + Armor" )
+watermarkcolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
+keybindscolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
 deflby=gui.GetValue("rbot.antiaim.base.lby")
 defrotat=gui.GetValue("rbot.antiaim.base.rotation")
 speedburst=gui.GetValue("misc.speedburst.enable")
@@ -64,49 +71,53 @@ function lowdelta()
 	end
 end
 function dtgetenable()
-	pistoldtenable=gui.GetValue("rbot.accuracy.weapon.pistol.doublefire")
-	autodtenable=gui.GetValue("rbot.accuracy.weapon.asniper.doublefire")
-	heavypistoldtenable=gui.GetValue("rbot.accuracy.weapon.hpistol.doublefire")
-	smgdtenable=gui.GetValue("rbot.accuracy.weapon.smg.doublefire")
-	rifledtenable=gui.GetValue("rbot.accuracy.weapon.rifle.doublefire")
-	shotgundtenable=gui.GetValue("rbot.accuracy.weapon.shotgun.doublefire")
-	lightmgenable=gui.GetValue("rbot.accuracy.weapon.lmg.doublefire")
-	lpaw=entities.GetLocalPlayer():GetWeaponID()
-	if lpaw == 2 or lpaw== 3 or lpaw== 4 or lpaw== 30 or lpaw== 32 or lpaw== 36 or lpaw== 61 or lpaw== 63 then
-		wclass="pistol"
-	elseif paw== 1 then
-		wclass="heavy pistol"
-	elseif lpaw == 17 or lpaw== 19 or lpaw== 23 or lpaw== 24 or lpaw== 26 or lpaw== 33 or lpaw== 34 then
-		wclass="smg"
-	elseif  lpaw== 7 or lpaw== 8 or lpaw== 10 or lpaw== 13 or lpaw== 16 or lpaw== 39 or lpaw== 61 then
-		wclass="rifle"
-	elseif lpaw== 25 or lpaw== 27 or lpaw== 29 or lpaw== 35 then
-		wclass="shotgun"
-	elseif lpaw == 38 or lpaw== 11 then
-		wclass="autosniper"
-	elseif lpaw == 28 or lpaw== 14 then
-		wclass="Lightmg"
-	else
-		wclass="other"
+	server=engine.GetServerIP()
+	if server~=nil then
+		pistoldtenable=gui.GetValue("rbot.accuracy.weapon.pistol.doublefire")
+		autodtenable=gui.GetValue("rbot.accuracy.weapon.asniper.doublefire")
+		heavypistoldtenable=gui.GetValue("rbot.accuracy.weapon.hpistol.doublefire")
+		smgdtenable=gui.GetValue("rbot.accuracy.weapon.smg.doublefire")
+		rifledtenable=gui.GetValue("rbot.accuracy.weapon.rifle.doublefire")
+		shotgundtenable=gui.GetValue("rbot.accuracy.weapon.shotgun.doublefire")
+		lightmgenable=gui.GetValue("rbot.accuracy.weapon.lmg.doublefire")
+		gui.Command("clear")
+		lpaw=entities.GetLocalPlayer():GetWeaponID()
+		if lpaw == 2 or lpaw== 3 or lpaw== 4 or lpaw== 30 or lpaw== 32 or lpaw== 36 or lpaw== 61 or lpaw== 63 then
+			wclass="pistol"
+		elseif paw== 1 then
+			wclass="heavy pistol"
+		elseif lpaw == 17 or lpaw== 19 or lpaw== 23 or lpaw== 24 or lpaw== 26 or lpaw== 33 or lpaw== 34 then
+			wclass="smg"
+		elseif  lpaw== 7 or lpaw== 8 or lpaw== 10 or lpaw== 13 or lpaw== 16 or lpaw== 39 or lpaw== 61 then
+			wclass="rifle"
+		elseif lpaw== 25 or lpaw== 27 or lpaw== 29 or lpaw== 35 then
+			wclass="shotgun"
+		elseif lpaw == 38 or lpaw== 11 then
+			wclass="autosniper"
+		elseif lpaw == 28 or lpaw== 14 then
+			wclass="Lightmg"
+		else
+			wclass="other"
+		end
+		if wclass=="pistol" and (pistoldtenable==1 or pistoldtenable==2)  then
+			dtguion=true
+		elseif wclass=="heavy pistol" and (heavypistoldtenable==1 or heavypistoldtenable==2) then
+			dtguion=true
+		elseif wclass=="smg" and (smgdtenable==1 or smgdtenable==2) then
+			dtguion=true
+		elseif wclass=="rifle" and (rifledtenable==1 or rifledtenable==2) then
+			dtguion=true
+		elseif wclass=="shotgun" and (shotgundtenable==1 or shotgundtenable==2) then
+			dtguion=true
+		elseif wclass=="autosniper" and (autodtenable==1 or autodtenable==2) then
+			dtguion=true
+		elseif wclass=="lightmg" and (lightmgenable==1 or lightmgenable==2) then
+			dtguion=true
+		else
+			dtguion=false
+		end
+		return dtguion
 	end
-	if wclass=="pistol" and (pistoldtenable==1 or pistoldtenable==2)  then
-		dtguion=true
-	elseif wclass=="heavy pistol" and (heavypistoldtenable==1 or heavypistoldtenable==2) then
-		dtguion=true
-	elseif wclass=="smg" and (smgdtenable==1 or smgdtenable==2) then
-		dtguion=true
-	elseif wclass=="rifle" and (rifledtenable==1 or rifledtenable==2) then
-		dtguion=true
-	elseif wclass=="shotgun" and (shotgundtenable==1 or shotgundtenable==2) then
-		dtguion=true
-	elseif wclass=="autosniper" and (autodtenable==1 or autodtenable==2) then
-		dtguion=true
-	elseif wclass=="lightmg" and (lightmgenable==1 or lightmgenable==2) then
-		dtguion=true
-	else
-		dtguion=false
-	end
-	return dtguion
 end
 function indicators()
 	if Enableyaw:GetValue() then
@@ -219,6 +230,7 @@ end
 function advanceDT()
 	if Enableyaw:GetValue() then
 		EnableadvanceDT:SetInvisible(false)
+		dtguion=dtgetenable()
 		if EnableadvanceDT then
 			if ComboxDTmode:GetValue()==0 and dtguion then
 				processticks:SetValue(16)
@@ -229,6 +241,9 @@ function advanceDT()
 			elseif ComboxDTmode:GetValue()==2 and dtguion then
 				processticks:SetValue(25)
 				gui.SetValue("rbot.antiaim.advanced.antialign",1)
+			else
+				gui.SetValue("rbot.antiaim.advanced.antialign",0)
+				processticks:SetValue(15)
 			end
 		end
 	else
@@ -237,6 +252,8 @@ function advanceDT()
 	if EnableadvanceDT:GetValue() and Enableyaw:GetValue() then
 		ComboxDTmode:SetInvisible(false)
 	else
+		gui.SetValue("rbot.antiaim.advanced.antialign",0)
+		processticks:SetValue(15)
 		ComboxDTmode:SetInvisible(true)
 	end
 end
@@ -423,7 +440,9 @@ function nightmode()
 	else
 		Enablenightmode:SetInvisible(true)
 	end
-	if Enablenightmode:GetValue() and Enablenightmode:GetValue() then
+	server=engine.GetServerIP()
+	if Enableyaw:GetValue() and Enablenightmode:GetValue() and server~=nil then
+		modenight = entities.FindByClass("CEnvTonemapController")[1]
 		nightmodeslider:SetInvisible(false)
 		modenight:SetProp("m_bUseCustomAutoExposureMin", 1);
 		modenight:SetProp("m_bUseCustomAutoExposureMax", 1);
