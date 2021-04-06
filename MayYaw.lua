@@ -1,5 +1,4 @@
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
-
 ComboxEnable=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 160, 0)
 Comboxmain=gui.Groupbox(MayYaw, "MayYaw Features", 190, 10, 410, 0)
 DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 160, 0)
