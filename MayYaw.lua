@@ -3,9 +3,29 @@ ComboxEnable=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 160, 0)
 Comboxmain=gui.Groupbox(MayYaw, "MayYaw Features", 190, 10, 410, 0)
 DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 160, 0)
 Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
-Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: 1.0")
+Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: 1.1")
 Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: Maybe#2990")
+LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 263, 160, 0)
+LastUpddatetext=gui.Text(LastUpdGroupbox,"07.04.2021")
+LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Add Jump Scout FIX")
+LastUpdlog2text=gui.Text(LastUpdGroupbox,"[-] Removed Advanced DT")
+LastUpdlog3text=gui.Text(LastUpdGroupbox,"[=] Fix Lowdelta ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 mainmenu=gui.Reference("MENU")
 wightscreen,hightscreen=draw.GetScreenSize()
 Enableyaw=gui.Checkbox(ComboxEnable, "Enableyaw", "Enable", 0)
@@ -14,10 +34,9 @@ Enablewatermark=gui.Checkbox(Comboxmain, "Enablewatermark", "Watermark", 0)
 Enablekeybinds=gui.Checkbox(Comboxmain,"Enablekeybinds","Keybinds",0)
 Enableradar=gui.Checkbox(Comboxmain, "Enableradar", "Engine Radar", 0)
 Enablenightmode=gui.Checkbox(Comboxmain, "Enablenightmode", "Night mode", 0)
-nightmodeslider=gui.Slider(Comboxmain, "nightmodeslider", "Night mode value", 100, 1, 100 )
+nightmodeslider=gui.Slider(Comboxmain, "nightmodeslider", "Night mode value", 100, 1, 100 )modenight = entities.FindByClass("CEnvTonemapController")[1]
+
 Enablelowdelta=gui.Checkbox(Comboxmain, "Enablelowdelta", "Lowdelta", 0)
-EnableadvanceDT=gui.Checkbox(Comboxmain, "Enableadvancedt", "Advanced DT", 0)
-ComboxDTmode=gui.Combobox(Comboxmain, "ComboxDtmode", "DT mode","Reliable","Faster","Fastest(Inacuracy)" )
 Enabledamageoverride=gui.Checkbox(Comboxmain,"Enabledamageoverride","Damage override",0)
 mindamagewindow=gui.Window("damagewindow","Damage Override", 0, 200, 200, 600 )
 mindamagewindow:SetOpenKey(45)
@@ -31,6 +50,7 @@ awpdmgoverrideslider=gui.Slider(mindamagewindow, "awpdmgoverrideslider", "Awp Ov
 autodmgoverrideslider=gui.Slider(mindamagewindow, "autodmgoverrideslider", "Auto Override Min Damage", 0, 1, 100 )
 ssg08dmgoverrideslider=gui.Slider(mindamagewindow, "ssg08dmgoverrideslider", "Scout Override Min Damage", 0, 1, 100 )
 heavypistoldmgoverrideslider=gui.Slider(mindamagewindow, "heavypistoldmgoverrideslider", "Heavy Pistol Override Min Damage", 0, 1, 100 )
+Enablejumpscoutfix=gui.Checkbox(Comboxmain, "Enablejumpscoutfix", "Jump Scout FIX", 0)
 dmgoverridekeybox=gui.Keybox(mindamagewindow,"dmgoverridekeybox","Damage overrride", 0 )
 Enableautobuy=gui.Checkbox(Comboxmain, "Enableautobuy", "Autobuy", 0)
 Comboxautobuy=gui.Combobox(Comboxmain, "Comboxautobuy", "Autobuy items","Scar + Armor","Scout + Armor","AWP + Armor" )
@@ -57,16 +77,28 @@ function lowdelta()
 		Enablelowdelta:SetInvisible(false)
 		local slowkey = gui.GetValue("rbot.accuracy.movement.slowkey")
 		if input.IsButtonDown(slowkey) and Enablelowdelta:GetValue() and Enableyaw:GetValue() then
-			gui.SetValue("rbot.antiaim.base.rotation",20)
-			gui.SetValue("rbot.antiaim.base.lby",-17)
+			gui.SetValue("rbot.antiaim.base.rotation",21)
+			gui.SetValue("rbot.antiaim.base.lby",-32)
+			gui.SetValue("rbot.antiaim.left.rotation",21)
+			gui.SetValue("rbot.antiaim.left.lby",-32)
+			gui.SetValue("rbot.antiaim.right.rotation",21)
+			gui.SetValue("rbot.antiaim.right.lby",-32)
 		else
-			gui.SetValue("rbot.antiaim.base.lby",80)
-			gui.SetValue("rbot.antiaim.base.rotation",-45)
+			gui.SetValue("rbot.antiaim.base.lby",-75)
+			gui.SetValue("rbot.antiaim.base.rotation",40)
+			gui.SetValue("rbot.antiaim.left.rotation",40)
+			gui.SetValue("rbot.antiaim.left.lby",-75)
+			gui.SetValue("rbot.antiaim.right.rotation",40)
+			gui.SetValue("rbot.antiaim.right.lby",-75)
 		end
 	else
 		Enablelowdelta:SetInvisible(true)
-		gui.SetValue("rbot.antiaim.base.lby",80)
-		gui.SetValue("rbot.antiaim.base.rotation",-45)
+		gui.SetValue("rbot.antiaim.base.lby",-75)
+		gui.SetValue("rbot.antiaim.base.rotation",40)
+		gui.SetValue("rbot.antiaim.left.rotation",40)
+		gui.SetValue("rbot.antiaim.left.lby",-75)
+		gui.SetValue("rbot.antiaim.right.rotation",40)
+		gui.SetValue("rbot.antiaim.right.lby",-75)
 	end
 end
 function dtgetenable()
@@ -123,6 +155,9 @@ function indicators()
 		Enableindicators:SetInvisible(false)
 		server=engine.GetServerIP()
 		if server ~= nil then
+
+			gui.Command("clear")
+
 			if Enableindicators:GetValue() then
 				VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
 				VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
@@ -193,6 +228,10 @@ function watermark()
 		if Enablewatermark:GetValue() then
 			server=engine.GetServerIP()
 			if server ~= nil then
+
+				gui.Command("clear")
+
+
 				name=entities.GetLocalPlayer():GetName()
 				pr=entities.GetPlayerResources()
 				delay = pr:GetPropInt("m_iPing", entities.GetLocalPlayer():GetIndex())
@@ -224,36 +263,6 @@ function watermark()
 		watermarkcolor:SetInvisible(false)
 	else
 		watermarkcolor:SetInvisible(true)
-	end
-end
-function advanceDT()
-	if Enableyaw:GetValue() then
-		EnableadvanceDT:SetInvisible(false)
-		dtguion=dtgetenable()
-		if EnableadvanceDT then
-			if ComboxDTmode:GetValue()==0 and dtguion then
-				processticks:SetValue(16)
-				gui.SetValue("rbot.antiaim.advanced.antialign",1)
-			elseif ComboxDTmode:GetValue()==1 and dtguion then
-				processticks:SetValue(18)
-				gui.SetValue("rbot.antiaim.advanced.antialign",1)
-			elseif ComboxDTmode:GetValue()==2 and dtguion then
-				processticks:SetValue(25)
-				gui.SetValue("rbot.antiaim.advanced.antialign",1)
-			else
-				gui.SetValue("rbot.antiaim.advanced.antialign",0)
-				processticks:SetValue(15)
-			end
-		end
-	else
-		EnableadvanceDT:SetInvisible(true)
-	end
-	if EnableadvanceDT:GetValue() and Enableyaw:GetValue() then
-		ComboxDTmode:SetInvisible(false)
-	else
-		gui.SetValue("rbot.antiaim.advanced.antialign",0)
-		processticks:SetValue(15)
-		ComboxDTmode:SetInvisible(true)
 	end
 end
 function autobuydraw()
@@ -289,6 +298,9 @@ end
 function keybinds()
 	if Enableyaw then
 		server=engine.GetServerIP()
+		gui.Command("clear")
+
+
 		if Enablekeybinds:GetValue() and server ~= nil then
 			if entities.GetLocalPlayer():IsAlive() then
 				xmouse,ymouse=input.GetMousePos()
@@ -441,6 +453,9 @@ function nightmode()
 	server=engine.GetServerIP()
 	if server ~= nil then
 		if Enableyaw:GetValue() and Enablenightmode:GetValue() then
+			gui.Command("clear")
+
+
 			modenight = entities.FindByClass("CEnvTonemapController")[1]
 			modenight:SetProp("m_bUseCustomAutoExposureMin", 1);
 			modenight:SetProp("m_bUseCustomAutoExposureMax", 1);
@@ -457,14 +472,68 @@ function nightmode()
 		nightmodeslider:SetInvisible(true)
 	end
 end
+function jumpscoutfix()
+	if Enableyaw:GetValue() then
+		Enablejumpscoutfix:SetInvisible(false)
+	else
+		Enablejumpscoutfix:SetInvisible(true)
+	end
+	if Enableyaw:GetValue() and Enablejumpscoutfix:GetValue() then
+
+		server=engine.GetServerIP()
+		if server ~= nil then
+			gui.Command("clear")
+
+			if entities.GetLocalPlayer():IsAlive() then
+
+				Localplayer = entities.GetLocalPlayer()
+				playervelocity = math.sqrt(Localplayer:GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + Localplayer:GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
+				if Localplayer:GetPropEntity("m_hActiveWeapon"):GetName():lower() == "weapon_ssg08" then
+					if playervelocity > 5 then
+						gui.SetValue("misc.strafe.enable", true)
+					else
+						gui.SetValue("misc.strafe.enable",false)
+					end
+				else
+					gui.SetValue("misc.strafe.enable",true)
+				end
+			end
+		else
+			gui.SetValue("misc.strafe.enable",true)
+		end
+	end
+	if Enablejumpscoutfix:GetValue() == false then
+		defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
+	end
+	if Enablejumpscoutfix:GetValue() and Enableyaw:GetValue() then
+		server=engine.GetServerIP()
+		if server ~= nil then
+			gui.Command("clear")
+
+			if entities.GetLocalPlayer():IsAlive() then
+				flags = Localplayer:GetPropInt("m_fFlags")
+				if flags ~=nil then
+					if Localplayer:GetPropEntity("m_hActiveWeapon"):GetName():lower() == "weapon_ssg08" then
+						if bit.band(flags, 1) == 0 then
+							gui.SetValue("rbot.accuracy.weapon.scout.hitchance", 40)
+						else
+							gui.SetValue("rbot.accuracy.weapon.scout.hitchance", defhcscout)
+						end
+					end
+				end
+			end
+		end
+	end
+end
 client.AllowListener("round_prestart");
 callbacks.Register("Draw", lowdelta)
 callbacks.Register("Draw", indicators)
 callbacks.Register("Draw", damageoverride)
 callbacks.Register("Draw", keybinds)
 callbacks.Register("Draw", watermark)
-callbacks.Register("Draw", advanceDT)
 callbacks.Register("Draw", autobuydraw)
 callbacks.Register("Draw", radar)
 callbacks.Register("Draw", nightmode)
+callbacks.Register("Draw", jumpscoutfix)
+
 callbacks.Register( "FireGameEvent", autobuy)
