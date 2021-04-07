@@ -358,8 +358,7 @@ function keybinds()
 				else
 					dmgwost=0
 				end
-				if
-				speedburst==true and input.IsButtonDown(speedburstkey) then
+				if speedburst==true and input.IsButtonDown(speedburstkey) then
 					draw.Color(1,1,1,255)
 					draw.Text(x1+6,y1+27+dtots+hsots+fdost+slowost+dmgost,"Speed burst   	[holding]")
 					draw.Color(255,255,255,255)
@@ -441,22 +440,22 @@ function nightmode()
 	end
 	server=engine.GetServerIP()
 	if server ~= nil then
-	if Enableyaw:GetValue() and Enablenightmode:GetValue() then
-		modenight = entities.FindByClass("CEnvTonemapController")[1]
-		modenight:SetProp("m_bUseCustomAutoExposureMin", 1);
-		modenight:SetProp("m_bUseCustomAutoExposureMax", 1);
-		modenight:SetProp("m_flCustomAutoExposureMin", nightmodeslider:GetValue()/100);
-		modenight:SetProp("m_flCustomAutoExposureMax", nightmodeslider:GetValue()/100);
-	else
-		modenight:SetProp("m_bUseCustomAutoExposureMin", 0);
-		modenight:SetProp("m_bUseCustomAutoExposureMax", 0);
-	end
+		if Enableyaw:GetValue() and Enablenightmode:GetValue() then
+			modenight = entities.FindByClass("CEnvTonemapController")[1]
+			modenight:SetProp("m_bUseCustomAutoExposureMin", 1);
+			modenight:SetProp("m_bUseCustomAutoExposureMax", 1);
+			modenight:SetProp("m_flCustomAutoExposureMin", nightmodeslider:GetValue()/100);
+			modenight:SetProp("m_flCustomAutoExposureMax", nightmodeslider:GetValue()/100);
+		else
+			modenight:SetProp("m_bUseCustomAutoExposureMin", 0);
+			modenight:SetProp("m_bUseCustomAutoExposureMax", 0);
+		end
 	end
 	if Enableyaw:GetValue() and Enablenightmode:GetValue() then
 		nightmodeslider:SetInvisible(false)
 	else
 		nightmodeslider:SetInvisible(true)
-	end 
+	end
 end
 client.AllowListener("round_prestart");
 callbacks.Register("Draw", lowdelta)
