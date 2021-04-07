@@ -11,21 +11,6 @@ LastUpddatetext=gui.Text(LastUpdGroupbox,"07.04.2021")
 LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Add Jump Scout FIX")
 LastUpdlog2text=gui.Text(LastUpdGroupbox,"[-] Removed Advanced DT")
 LastUpdlog3text=gui.Text(LastUpdGroupbox,"[=] Fix Lowdelta ")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 mainmenu=gui.Reference("MENU")
 wightscreen,hightscreen=draw.GetScreenSize()
 Enableyaw=gui.Checkbox(ComboxEnable, "Enableyaw", "Enable", 0)
@@ -35,7 +20,6 @@ Enablekeybinds=gui.Checkbox(Comboxmain,"Enablekeybinds","Keybinds",0)
 Enableradar=gui.Checkbox(Comboxmain, "Enableradar", "Engine Radar", 0)
 Enablenightmode=gui.Checkbox(Comboxmain, "Enablenightmode", "Night mode", 0)
 nightmodeslider=gui.Slider(Comboxmain, "nightmodeslider", "Night mode value", 100, 1, 100 )modenight = entities.FindByClass("CEnvTonemapController")[1]
-
 Enablelowdelta=gui.Checkbox(Comboxmain, "Enablelowdelta", "Lowdelta", 0)
 Enabledamageoverride=gui.Checkbox(Comboxmain,"Enabledamageoverride","Damage override",0)
 mindamagewindow=gui.Window("damagewindow","Damage Override", 0, 200, 200, 600 )
@@ -155,9 +139,7 @@ function indicators()
 		Enableindicators:SetInvisible(false)
 		server=engine.GetServerIP()
 		if server ~= nil then
-
 			gui.Command("clear")
-
 			if Enableindicators:GetValue() then
 				VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
 				VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
@@ -228,10 +210,7 @@ function watermark()
 		if Enablewatermark:GetValue() then
 			server=engine.GetServerIP()
 			if server ~= nil then
-
 				gui.Command("clear")
-
-
 				name=entities.GetLocalPlayer():GetName()
 				pr=entities.GetPlayerResources()
 				delay = pr:GetPropInt("m_iPing", entities.GetLocalPlayer():GetIndex())
@@ -299,8 +278,6 @@ function keybinds()
 	if Enableyaw then
 		server=engine.GetServerIP()
 		gui.Command("clear")
-
-
 		if Enablekeybinds:GetValue() and server ~= nil then
 			if entities.GetLocalPlayer():IsAlive() then
 				xmouse,ymouse=input.GetMousePos()
@@ -454,8 +431,6 @@ function nightmode()
 	if server ~= nil then
 		if Enableyaw:GetValue() and Enablenightmode:GetValue() then
 			gui.Command("clear")
-
-
 			modenight = entities.FindByClass("CEnvTonemapController")[1]
 			modenight:SetProp("m_bUseCustomAutoExposureMin", 1);
 			modenight:SetProp("m_bUseCustomAutoExposureMax", 1);
@@ -535,5 +510,4 @@ callbacks.Register("Draw", autobuydraw)
 callbacks.Register("Draw", radar)
 callbacks.Register("Draw", nightmode)
 callbacks.Register("Draw", jumpscoutfix)
-
 callbacks.Register( "FireGameEvent", autobuy)
