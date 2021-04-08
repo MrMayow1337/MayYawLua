@@ -6,8 +6,6 @@ Enableindicators=gui.Checkbox(Comboxmain, "Enableindicators", "Indicators", 0)
 Enablekeybinds=gui.Checkbox(Comboxmain,"Enablekeybinds","Keybinds",0)
 Enablewatermark=gui.Checkbox(Comboxmain, "Enablewatermark", "Watermark", 0)
 Enableradar=gui.Checkbox(Comboxmain, "Enableradar", "Engine Radar", 0)
-Enablenightmode=gui.Checkbox(Comboxmain, "Enablenightmode", "Night mode", 0)
-nightmodeslider=gui.Slider(Comboxmain, "nightmodeslider", "Night mode value", 100, 1, 100 )
 Enabledamageoverride=gui.Checkbox(Comboxmain,"Enabledamageoverride","Damage override",0)
 EnableAAAnvanced=gui.Checkbox(Comboxmain, "EnableAAAnvanced", "Advanced AA", 0)
 Enablejumpscoutfix=gui.Checkbox(Comboxmain, "Enablejumpscoutfix", "Jump Scout FIX", 0)
@@ -16,8 +14,6 @@ Comboxautobuy=gui.Combobox(Comboxmain, "Comboxautobuy", "Autobuy items","Scar + 
 watermarkcolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
 keybindscolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
 menu=gui.Reference("MENU")
-modenight = entities.FindByClass("CEnvTonemapController")[1]
-
 --Description start
 DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 170, 0)
 Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
@@ -116,7 +112,6 @@ function guielements()
 		Enabledamageoverride:SetInvisible(false)
 		Enablekeybinds:SetInvisible(false)
 		Enableradar:SetInvisible(false)
-		Enablenightmode:SetInvisible(false)
 	else
 		Enableindicators:SetInvisible(true)
 		EnableAAAnvanced:SetInvisible(true)
@@ -126,7 +121,6 @@ function guielements()
 		Enabledamageoverride:SetInvisible(true)
 		Enablekeybinds:SetInvisible(true)
 		Enableradar:SetInvisible(true)
-		Enablenightmode:SetInvisible(true)
 	end
 	if Enableyaw:GetValue() and Enablewatermark:GetValue() then
 		watermarkcolor:SetInvisible(false)
@@ -147,11 +141,6 @@ function guielements()
 		mindamagewindow:SetActive(true)
 	else
 		mindamagewindow:SetActive(false)
-	end
-	if Enableyaw:GetValue() and Enablenightmode:GetValue() then
-		nightmodeslider:SetInvisible(false)
-	else
-		nightmodeslider:SetInvisible(true)
 	end
 end
 function AAAdvance()
@@ -474,21 +463,7 @@ function radar()
 		end
 	end
 end
-function nightmode()
-	lp= entities.GetLocalPlayer()
-	if lp~=nil then
-		if Enableyaw:GetValue() and Enablenightmode:GetValue() then
-			modenight = entities.FindByClass("CEnvTonemapController")[1]
-			modenight:SetProp("m_bUseCustomAutoExposureMin", 1);
-			modenight:SetProp("m_bUseCustomAutoExposureMax", 1);
-			modenight:SetProp("m_flCustomAutoExposureMin", nightmodeslider:GetValue()/100);
-			modenight:SetProp("m_flCustomAutoExposureMax", nightmodeslider:GetValue()/100);
-		else
-			modenight:SetProp("m_bUseCustomAutoExposureMin", 0);
-			modenight:SetProp("m_bUseCustomAutoExposureMax", 0);
-		end
-	end
-end
+
 client.AllowListener("round_prestart");
 callbacks.Register("Draw",guielements)
 callbacks.Register("CreateMove",AAAdvance)
@@ -496,8 +471,6 @@ callbacks.Register("Draw",indicators)
 callbacks.Register("Draw",watermark)
 callbacks.Register( "FireGameEvent", autobuy)
 callbacks.Register("CreateMove",jumpscoutfix)
-
 callbacks.Register("Draw",dmgoverride)
 callbacks.Register("Draw",keybinds)
 callbacks.Register("Draw",radar)
-callbacks.Register("Draw",nightmode)
