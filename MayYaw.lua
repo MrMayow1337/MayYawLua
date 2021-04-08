@@ -16,6 +16,8 @@ Comboxautobuy=gui.Combobox(Comboxmain, "Comboxautobuy", "Autobuy items","Scar + 
 watermarkcolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
 keybindscolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
 menu=gui.Reference("MENU")
+modenight = entities.FindByClass("CEnvTonemapController")[1]
+
 --Description start
 DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 170, 0)
 Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
