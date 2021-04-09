@@ -6,6 +6,10 @@ Enableindicators=gui.Checkbox(Comboxmain, "Enableindicators", "Indicators", 0)
 Enablekeybinds=gui.Checkbox(Comboxmain,"Enablekeybinds","Keybinds",0)
 Enablewatermark=gui.Checkbox(Comboxmain, "Enablewatermark", "Watermark", 0)
 Enableradar=gui.Checkbox(Comboxmain, "Enableradar", "Engine Radar", 0)
+Enablerainbowbar=gui.Checkbox(Comboxmain, "Enablerainbowbar", "Rainbow Bar", 0)
+Enableascpectratio=gui.Checkbox(Comboxmain, "Enableascpectratio", "Aspect Ratio", 0)
+aspectratioslider = gui.Slider(Comboxmain, "aspectratioslider", "Aspect Ratio Value", 100, 1, 199)
+aspect_ratio_table = {}
 Enabledamageoverride=gui.Checkbox(Comboxmain,"Enabledamageoverride","Damage override",0)
 EnableAAAnvanced=gui.Checkbox(Comboxmain, "EnableAAAnvanced", "Advanced AA", 0)
 Enablejumpscoutfix=gui.Checkbox(Comboxmain, "Enablejumpscoutfix", "Jump Scout FIX", 0)
@@ -17,15 +21,14 @@ menu=gui.Reference("MENU")
 --Description start
 DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 170, 0)
 Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
-Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: 1.1")
+Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: 1.1.1")
 Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: Maybe#2990")
 LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 263, 170, 0)
-LastUpddatetext=gui.Text(LastUpdGroupbox,"08.04.2021")
-LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Add Advanced AA")
-LastUpdlog2text=gui.Text(LastUpdGroupbox,"[-] Removed LowDelta")
-LastUpdlog3text=gui.Text(LastUpdGroupbox,"[=] Reworked Dmg Override")
-LastUpdlog4text=gui.Text(LastUpdGroupbox,"[=] Minor fixes")
+LastUpddatetext=gui.Text(LastUpdGroupbox,"09.04.2021")
+LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Added Aspect Ratio")
+LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] Added Rainbow bar")
+LastUpdlog3text=gui.Text(LastUpdGroupbox,"[-] Removed Nightmode")
 --Description end
 --Damage override Window start
 mindamagewindow=gui.Window("damagewindow","Damage Override", 0, 200, 200, 630 )
@@ -112,6 +115,8 @@ function guielements()
 		Enabledamageoverride:SetInvisible(false)
 		Enablekeybinds:SetInvisible(false)
 		Enableradar:SetInvisible(false)
+		Enableascpectratio:SetInvisible(false)
+		Enablerainbowbar:SetInvisible(false)
 	else
 		Enableindicators:SetInvisible(true)
 		EnableAAAnvanced:SetInvisible(true)
@@ -121,6 +126,8 @@ function guielements()
 		Enabledamageoverride:SetInvisible(true)
 		Enablekeybinds:SetInvisible(true)
 		Enableradar:SetInvisible(true)
+		Enableascpectratio:SetInvisible(true)
+		Enablerainbowbar:SetInvisible(true)
 	end
 	if Enableyaw:GetValue() and Enablewatermark:GetValue() then
 		watermarkcolor:SetInvisible(false)
@@ -141,6 +148,11 @@ function guielements()
 		mindamagewindow:SetActive(true)
 	else
 		mindamagewindow:SetActive(false)
+	end
+	if Enableyaw:GetValue() and Enableascpectratio:GetValue() then
+		aspectratioslider:SetInvisible(false)
+	else
+		aspectratioslider:SetInvisible(true)
 	end
 end
 function AAAdvance()
@@ -463,6 +475,48 @@ function radar()
 		end
 	end
 end
+function gcd(m, n)
+	while m ~= 0 do
+		m, n = math.fmod(n, m), m;
+	end
+return n
+end
+function set_aspect_ratio(aspect_ratio_multiplier)
+	screen_width, screen_height = draw.GetScreenSize();
+	aspectratio_value = (screen_width*aspect_ratio_multiplier)/screen_height;
+	if Enableyaw:GetValue() == false then
+		aspectratio_value = 0;
+	end
+	if aspect_ratio_multiplier == 1 or not Enableascpectratio:GetValue() then
+		aspectratio_value = 0;
+	end
+
+	client.SetConVar( "r_aspectratio", tonumber(aspectratio_value), true);
+end
+function aspectratio()
+	screen_width, screen_height = draw.GetScreenSize();
+	for i=1, 200 do
+		i2=i*0.01;    i2 = 2 - i2;
+		divisor = gcd(screen_width*i2, screen_height);
+		if screen_width*i2/divisor < 100 or i2 == 1 then
+			aspect_ratio_table[i] = screen_width*i2/divisor .. ":" .. screen_height/divisor;
+		end
+	end
+	aspect_ratio = aspectratioslider:GetValue()*0.01;
+	aspect_ratio = 2 - aspect_ratio;
+	set_aspect_ratio(aspect_ratio);
+end
+
+function rainbowbar()
+	if Enableyaw:GetValue() and Enablerainbowbar:GetValue() then
+		local screenSize = draw.GetScreenSize();
+        local r = math.floor(math.sin(globals.RealTime() * 1) * 127 + 128);
+        local g = math.floor(math.sin(globals.RealTime() * 1 + 2) * 127 + 128);
+        local b = math.floor(math.sin(globals.RealTime() * 1 + 4) * 127 + 128);
+        draw.Color(r, g, b, 255);
+        draw.FilledRect(0, 0, screenSize, 2.5);
+	end
+end
 
 client.AllowListener("round_prestart");
 callbacks.Register("Draw",guielements)
@@ -474,3 +528,6 @@ callbacks.Register("CreateMove",jumpscoutfix)
 callbacks.Register("Draw",dmgoverride)
 callbacks.Register("Draw",keybinds)
 callbacks.Register("Draw",radar)
+callbacks.Register('Draw',aspectratio)
+callbacks.Register('Draw',rainbowbar)
+
