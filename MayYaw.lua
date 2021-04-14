@@ -1,5 +1,5 @@
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
-ComboxEnable=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 170, 0)
+ComboxEnable=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
 Comboxmain=gui.Groupbox(MayYaw, "MayYaw Features", 190, 10, 410, 0)
 Enableyaw=gui.Checkbox(ComboxEnable, "Enableyaw", "Enable", 0)
 Enableindicators=gui.Checkbox(Comboxmain, "Enableindicators", "Indicators", 0)
@@ -15,12 +15,12 @@ watermarkcolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Watermark Color", 56
 keybindscolor=gui.ColorPicker(Comboxmain,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
 menu=gui.Reference("MENU")
 --Description start
-DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 170, 0)
+DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 100, 175, 0)
 Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
 Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: 1.2")
 Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: Maybe#2990")
-LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 263, 170, 0)
+LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 263, 175, 0)
 LastUpddatetext=gui.Text(LastUpdGroupbox,"14.04.2021")
 LastUpdlog3text=gui.Text(LastUpdGroupbox,"[=] Fixed crashes")
 LastUpdlog1text=gui.Text(LastUpdGroupbox,"[=] Reworked Advanced AA")
