@@ -5,6 +5,7 @@ Enableyaw=gui.Checkbox(ComboxEnable, "Enableyaw", "Enable", 0)
 Enableindicators=gui.Checkbox(Comboxmain, "Enableindicators", "Indicators", 0)
 Enablekeybinds=gui.Checkbox(Comboxmain,"Enablekeybinds","Keybinds",0)
 Enablewatermark=gui.Checkbox(Comboxmain, "Enablewatermark", "Watermark", 0)
+Enableradar=gui.Checkbox(Comboxmain, "Enableradar", "Engine Radar", 0)
 Enabledamageoverride=gui.Checkbox(Comboxmain,"Enabledamageoverride","Damage override",0)
 EnableAAAnvanced=gui.Checkbox(Comboxmain, "EnableAAAnvanced", "Advanced AA", 0)
 Enablejumpscoutfix=gui.Checkbox(Comboxmain, "Enablejumpscoutfix", "Jump Scout FIX", 0)
@@ -110,6 +111,7 @@ function guielements()
 		Enablejumpscoutfix:SetInvisible(false)
 		Enabledamageoverride:SetInvisible(false)
 		Enablekeybinds:SetInvisible(false)
+		Enableradar:SetInvisible(false)
 	else
 		Enableindicators:SetInvisible(true)
 		EnableAAAnvanced:SetInvisible(true)
@@ -118,6 +120,7 @@ function guielements()
 		Enablejumpscoutfix:SetInvisible(true)
 		Enabledamageoverride:SetInvisible(true)
 		Enablekeybinds:SetInvisible(true)
+		Enableradar:SetInvisible(true)
 	end
 	if Enableyaw:GetValue() and Enablewatermark:GetValue() then
 		watermarkcolor:SetInvisible(false)
@@ -453,7 +456,17 @@ function keybinds()
 		end
 	end
 end
-
+function radar()
+	if Enableyaw:GetValue() and Enableradar:GetValue() then
+		for index, Player in pairs(entities.FindByClass("CCSPlayer")) do
+			Player:SetProp("m_bSpotted", 1);
+		end
+	else
+		for index, Player in pairs(entities.FindByClass("CCSPlayer")) do
+			Player:SetProp("m_bSpotted", 0);
+		end
+	end
+end
 
 client.AllowListener("round_prestart");
 callbacks.Register("Draw",guielements)
@@ -464,3 +477,4 @@ callbacks.Register( "FireGameEvent", autobuy)
 callbacks.Register("CreateMove",jumpscoutfix)
 callbacks.Register("Draw",dmgoverride)
 callbacks.Register("Draw",keybinds)
+callbacks.Register("Draw",radar)
