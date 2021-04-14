@@ -19,3 +19,9 @@ Version: 1.1.1
 [+]Added Aspect Ratio
 [+]Added Rainbow Bar
 [-]Removed Nightmode  (already in cheat "Walls color")
+-------------------------------------------------------
+Version: 1.2
+14.04.2021
+[=] Fixed crashes
+[=] Reworked Advanced AA
+[-] Removed useless features
