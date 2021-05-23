@@ -635,7 +635,7 @@ function AutoBuy(event)
 				elseif ComboboxAutoBuyArmor:GetValue()==1 then
 					Armor="buy vest;"
 				else
-					Armor="vesthelm;"
+					Armor="buy vesthelm;"
 				end
 				client.Command(PrimaryWeapon..SecondaryWeapon..Armor.." buy incgrenade; buy molotov; buy hegrenade; buy smokegrenade; buy taser", true)  
 				
