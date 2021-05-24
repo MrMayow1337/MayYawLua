@@ -148,7 +148,9 @@ function GuiElements()
 	-------------------------------------ChildElementsEnd
 	
 end
-
+callbacks.Register("CreateMove", function(ucmd)
+vel=ucmd.sidemove
+end);
 function isDmgEnable()
 	dmgovkey=gui.GetValue("mayyaw.DMGKey")
 	if EnableYaw:GetValue() and EnableDmg:GetValue() and dmgovkey~=0 then
@@ -505,14 +507,15 @@ function MayYawAA()
 	gui.SetValue("rbot.antiaim.advanced.antialign",1)
 	Delta()
 	
-	VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]")
-	if math.ceil(VelocityX) > 1 then
+	VelocityX = vel
+
+	if math.ceil(VelocityX) > 100 then
 		gui.SetValue("rbot.antiaim.base.lby",delta+11)
 		gui.SetValue("rbot.antiaim.base.rotation",-delta)
 		gui.SetValue("rbot.antiaim.base",176)
 
 
-	elseif math.ceil(VelocityX) < -1 then
+	elseif math.ceil(VelocityX) < -100 then
 		gui.SetValue("rbot.antiaim.base.lby",-delta-11)
 		gui.SetValue("rbot.antiaim.base.rotation",delta)
 		gui.SetValue("rbot.antiaim.base",-167)
@@ -552,14 +555,14 @@ function CustomMayYawAA()
 		LbyOffset=LbyOffsetCustom
 	end
 	if EnbaleAutoSwitchDesync:GetValue() then
-		VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]")
-		if math.ceil(VelocityX) > 1 then
+		VelocityX = vel
+		if math.ceil(VelocityX) > 100 then
 			BaseYawOffset=BaseYawOffsetCustom
 
 
 			RotationOffset=-math.abs(RotationOffset)
 			LbyOffset=math.abs(LbyOffset)
-		elseif math.ceil(VelocityX) < -1 then
+		elseif math.ceil(VelocityX) < -100 then
 			BaseYawOffset=-BaseYawOffsetCustom
 
 
