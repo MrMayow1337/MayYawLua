@@ -502,26 +502,21 @@ function EngineRadar()
 	end
 end
 function MayYawAA()
-	SlowEnable=gui.GetValue("rbot.accuracy.movement.slowkey")
-	gui.SetValue("rbot.antiaim.advanced.antialign",1)
-	Delta()
-	
-	VelocityX = vel
-
-	if math.ceil(VelocityX) > 100 then
-		gui.SetValue("rbot.antiaim.base.lby",delta+11)
-		gui.SetValue("rbot.antiaim.base.rotation",-delta)
-		gui.SetValue("rbot.antiaim.base",176)
-
-
-	elseif math.ceil(VelocityX) < -100 then
-		gui.SetValue("rbot.antiaim.base.lby",-delta-11)
-		gui.SetValue("rbot.antiaim.base.rotation",delta)
-		gui.SetValue("rbot.antiaim.base",-167)
-
-
-
-
+	LocalPlayer=entities.GetLocalPlayer()
+	if EnableYaw:GetValue() and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue()==false and LocalPlayer~=nil then
+		SlowEnable=gui.GetValue("rbot.accuracy.movement.slowkey")
+		gui.SetValue("rbot.antiaim.advanced.antialign",1)
+		Delta()
+		VelocityX = vel
+		if math.ceil(VelocityX) > 100 then
+			gui.SetValue("rbot.antiaim.base.lby",delta+11)
+			gui.SetValue("rbot.antiaim.base.rotation",-delta)
+			gui.SetValue("rbot.antiaim.base",176)
+		elseif math.ceil(VelocityX) < -100 then
+			gui.SetValue("rbot.antiaim.base.lby",-delta-11)
+			gui.SetValue("rbot.antiaim.base.rotation",delta)
+			gui.SetValue("rbot.antiaim.base",-167)	
+		end
 	end
 end
 function Delta()
@@ -533,64 +528,61 @@ function Delta()
 	return delta
 end
 function CustomMayYawAA()
-	RotationOffsetCustom=gui.GetValue("mayyaw.RotationSliderCustom")
-	LbyOffsetCustom=gui.GetValue("mayyaw.LBYSliderCustom")
-	BaseYawOffsetCustom=gui.GetValue("mayyaw.BaseYawSliderCustom")
-	if EnableLowDelta:GetValue() and input.IsButtonDown(SlowEnable) then
-		if RotationOffsetCustom<0 then
-			RotationOffset=-17
+	LocalPlayer=entities.GetLocalPlayer()
+	if EnableYaw:GetValue() and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue() and LocalPlayer~=nil then
+		RotationOffsetCustom=gui.GetValue("mayyaw.RotationSliderCustom")
+		LbyOffsetCustom=gui.GetValue("mayyaw.LBYSliderCustom")
+		BaseYawOffsetCustom=gui.GetValue("mayyaw.BaseYawSliderCustom")
+		if EnableLowDelta:GetValue() and input.IsButtonDown(SlowEnable) then
+			if RotationOffsetCustom<0 then
+				RotationOffset=-17
+			end
+			if RotationOffsetCustom>0 then
+				RotationOffset=17
+			end
+			if LbyOffsetCustom > 0 then
+				LbyOffset=28
+			end
+			if LbyOffsetCustom < 0 then
+				LbyOffset=-28
+			end 
+		else
+			RotationOffset=RotationOffsetCustom
+			LbyOffset=LbyOffsetCustom
 		end
-		if RotationOffsetCustom>0 then
-			RotationOffset=17
-		end
-		if LbyOffsetCustom > 0 then
-			LbyOffset=28
-		end
-		if LbyOffsetCustom < 0 then
-			LbyOffset=-28
-		end 
-	else
-		RotationOffset=RotationOffsetCustom
-		LbyOffset=LbyOffsetCustom
-	end
-	if EnbaleAutoSwitchDesync:GetValue() then
-		VelocityX = vel
-		if math.ceil(VelocityX) > 100 then
+		if EnbaleAutoSwitchDesync:GetValue() then
+			VelocityX = vel
+			if math.ceil(VelocityX) > 100 then
+				BaseYawOffset=BaseYawOffsetCustom
+				RotationOffset=-math.abs(RotationOffset)
+				LbyOffset=math.abs(LbyOffset)
+			elseif math.ceil(VelocityX) < -100 then
+				BaseYawOffset=-BaseYawOffsetCustom
+				RotationOffset=math.abs(RotationOffset)
+				LbyOffset=-math.abs(LbyOffset)
+			end			
+		else
 			BaseYawOffset=BaseYawOffsetCustom
-
-
-			RotationOffset=-math.abs(RotationOffset)
-			LbyOffset=math.abs(LbyOffset)
-		elseif math.ceil(VelocityX) < -100 then
-			BaseYawOffset=-BaseYawOffsetCustom
-
-
-			RotationOffset=math.abs(RotationOffset)
-			LbyOffset=-math.abs(LbyOffset)
-		end			
-	else
-		BaseYawOffset=BaseYawOffsetCustom
-
-
-		DesyncSwitchKeyValue=gui.GetValue("mayyaw.DesyncSwitchKey")
-		if DesyncSwitchKeyValue~=0 then 
-			if input.IsButtonPressed(DesyncSwitchKeyValue) then
-				DesyncSwitchToggle=DesyncSwitchToggle*-1
-			end
-			if DesyncSwitchToggle==1 then
-				LbyOffset=LbyOffset*-1
-				BaseYawOffset=BaseYawOffset*-1
-				RotationOffset=RotationOffset*-1
-			elseif DesyncSwitchToggle==-1 then
-				LbyOffset=LbyOffset*1
-				BaseYawOffset=BaseYawOffset*1
-				RotationOffset=RotationOffset*1
-			end
-		end	  
-	end 
-	gui.SetValue("rbot.antiaim.base.rotation",RotationOffset)
-	gui.SetValue("rbot.antiaim.base.lby",LbyOffset)
-	gui.SetValue("rbot.antiaim.base",BaseYawOffset)
+			DesyncSwitchKeyValue=gui.GetValue("mayyaw.DesyncSwitchKey")
+			if DesyncSwitchKeyValue~=0 then 
+				if input.IsButtonPressed(DesyncSwitchKeyValue) then
+					DesyncSwitchToggle=DesyncSwitchToggle*-1
+				end
+				if DesyncSwitchToggle==1 then
+					LbyOffset=LbyOffset*-1
+					BaseYawOffset=BaseYawOffset*-1
+					RotationOffset=RotationOffset*-1
+				elseif DesyncSwitchToggle==-1 then
+					LbyOffset=LbyOffset*1
+					BaseYawOffset=BaseYawOffset*1
+					RotationOffset=RotationOffset*1
+				end
+			end	  
+		end 
+		gui.SetValue("rbot.antiaim.base.rotation",RotationOffset)
+		gui.SetValue("rbot.antiaim.base.lby",LbyOffset)
+		gui.SetValue("rbot.antiaim.base",BaseYawOffset)
+	end
 end
 function Main()
 	LocalPlayer=entities.GetLocalPlayer()
@@ -607,12 +599,6 @@ function Main()
 	if EnableYaw:GetValue() and EnableKeybinds:GetValue() and LocalPlayer~=nil then
 		Keybinds()
 	end
-	if EnableYaw:GetValue() and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue()==false and LocalPlayer~=nil then
-		MayYawAA()
-	end
-	if EnableYaw:GetValue() and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue() and LocalPlayer~=nil then
-		CustomMayYawAA()
-	end	
 end
 function AutoBuy(event)
 	if event:GetName() == "round_prestart" then
@@ -647,6 +633,8 @@ function AutoBuy(event)
 	end
 end
 client.AllowListener("round_prestart");
+callbacks.Register("CreateMove",CustomMayYawAA)
+callbacks.Register("CreateMove",MayYawAA)
 callbacks.Register("CreateMove",JumpScoutFix)
 callbacks.Register("Draw",Main)
 callbacks.Register( "FireGameEvent", AutoBuy)
