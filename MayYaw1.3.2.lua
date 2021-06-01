@@ -119,11 +119,9 @@ function GuiElements()
 		end
 		if EnableDesyncInvertIndicator:GetValue() then
 			DesyncInvertActiveColor:SetInvisible(false)
-			DesyncInvertInActiveColor:SetInvisible(false)
 
 		else
 			DesyncInvertActiveColor:SetInvisible(true)
-			DesyncInvertInActiveColor:SetInvisible(true)
 		end
 
 	else
