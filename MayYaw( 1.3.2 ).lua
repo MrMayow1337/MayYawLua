@@ -637,6 +637,9 @@ function DesyncInvertIndicator()
 	if gui.GetValue("rbot.antiaim.base.lby")==0 and gui.GetValue("rbot.antiaim.base.rotation")==0 then 
 		DesyncSide="Neutral"
 	end
+	if gui.GetValue("rbot.antiaim.condition.use") and input.IsButtonDown(69) then
+		DesyncSide="Neutral"
+	end 
 	if DesyncSide=="Right" then
 		Lr,Lg,Lb,Lw=1,1,1,70
 		Rr,Rg,Rb,Rw=DesyncInvertActiveColor:GetValue()
