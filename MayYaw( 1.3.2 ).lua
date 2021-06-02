@@ -1,4 +1,6 @@
 if TimeLib == nil then http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/TimeModul.lua", function(body) load(body)() end) end
+LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
+Version="1.3.2"
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
 EnableYaw=gui.Checkbox(MainYaw, "Enableyaw", "Enable", 0)
@@ -47,15 +49,17 @@ Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: Maybe#2990")
 LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
 LastUpddatetext=gui.Text(LastUpdGroupbox,"1.06.2021")
-LastUpdlog3text=gui.Text(LastUpdGroupbox,"[+] Added Desync Indicator")
-LastUpdlog3text=gui.Text(LastUpdGroupbox,"[+] Added LegitAA on Use")
+LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Added Desync Indicator")
+LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] Added LegitAA on Use")
+UpdateText=gui.Text(LastUpdGroupbox,"PLEASE DOWNLOAD \n 	 NEW VERSION".."\n\n New version: "..LastVersion.."\n\n Your Version:"..Version)
+
+
 
 WatermarkColor=gui.ColorPicker(EnableWatermark,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
 KeybindsColor=gui.ColorPicker(EnableKeybinds,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
 DesyncInvertActiveColor=gui.ColorPicker(EnableDesyncInvertIndicator,"DesyncInvertActiveColor","Active Arrow Color", 0,255, 0, 255 )
 
-
----------------------
+--------------------
 
 Font1=draw.CreateFont("Arial Black", 15)
 Font2 = draw.CreateFont("Verdana", 13)
@@ -73,9 +77,17 @@ toggle
 =-1
 DesyncSwitchToggle=-1
 x1=100;y1=100;wight=230;hight=200
-----------------------
+-------------------------------------Version start
+if LastVersion~=Version then
+	LastUpddatetext:SetInvisible(true)
+	LastUpdlog1text:SetInvisible(true)
+	LastUpdlog2text:SetInvisible(true)
+else
+	UpdateText:SetInvisible(true)
+end	 
+-------------------------------------Version end
+-------------------------------------MenuElementStart
 function GuiElements()
-	-------------------------------------MenuElementStart
 	if EnableYaw:GetValue() then
 		ComboboxMenuMode:SetDisabled(false)
 	else
@@ -138,10 +150,8 @@ function GuiElements()
 		GroupboxMain:SetInvisible(true)
 	end
 	
-	-------------------------------------MainElementsEnd
-	-------------------------------------ChildElementsStart
-	 
-	-------------------------------------ChildElementsEnd
+-------------------------------------MainElementsEnd
+	
 	
 end
 callbacks.Register("CreateMove", function(ucmd)
