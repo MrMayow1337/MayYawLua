@@ -32,6 +32,7 @@ ComboboxDMGmode=gui.Combobox(GroupboxDMG, "ComboboxDMGmode", "Mode","Hold","Togg
 DMGKey=gui.Keybox(GroupboxDMG,"DMGKey","Key", 0 )
 EnableMayYawAA=gui.Checkbox(GroupboxAntiAim,"EnableMayYawAA","MayYawAA",0)
 EnableCustomMayYawAA=gui.Checkbox(GroupboxAntiAim,"EbableCustomMayYawAA","Custom MayYawAA",0)
+EnableLagitAAonUse=gui.Checkbox(GroupboxAntiAim,"EnableLagitAAonUse","Legit AA on Use",0)
 GroupboxCustomMayYawAA=gui.Groupbox(MayYaw, "Custom MayYaw AA",  190, 140, 410, 0)
 RotationSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "RotationSliderCustom", "Rotation Offset", 0, -58, 58 )
 LBYSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "LBYSliderCustom", "LBY Offset", 0, -180, 180 )
@@ -47,9 +48,9 @@ DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: Maybe#2990")
 LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
 LastUpddatetext=gui.Text(LastUpdGroupbox,"1.06.2021")
 LastUpdlog3text=gui.Text(LastUpdGroupbox,"[*] Added Desync Indicator")
-WatermarkColor=gui.ColorPicker(GroupboxVisuals,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
-KeybindsColor=gui.ColorPicker(GroupboxVisuals,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
-DesyncInvertActiveColor=gui.ColorPicker(GroupboxVisuals,"DesyncInvertActiveColor","Active Arrow Color", 0,255, 0, 255 )
+WatermarkColor=gui.ColorPicker(EnableWatermark,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
+KeybindsColor=gui.ColorPicker(EnableKeybinds,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
+DesyncInvertActiveColor=gui.ColorPicker(EnableDesyncInvertIndicator,"DesyncInvertActiveColor","Active Arrow Color", 0,255, 0, 255 )
 
 
 ---------------------
@@ -61,7 +62,7 @@ FontDesync=draw.CreateFont("Calibri", 26)
 
 defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
 
-
+defRotation=gui.GetValue("rbot.antiaim.base")
 gui.SetValue("mayyaw.awpdmgslider",gui.GetValue("rbot.accuracy.weapon.sniper.mindmg"))
 gui.SetValue("mayyaw.autodmgslider",gui.GetValue("rbot.accuracy.weapon.asniper.mindmg"))
 gui.SetValue("mayyaw.ssg08dmgslider",gui.GetValue("rbot.accuracy.weapon.scout.mindmg"))
@@ -107,23 +108,6 @@ function GuiElements()
 	end
 	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==1 then
 		GroupboxVisuals:SetInvisible(false)
-		if EnableKeybinds:GetValue() then
-			KeybindsColor:SetInvisible(false)
-		else
-			KeybindsColor:SetInvisible(true)
-		end
-		if EnableWatermark:GetValue() then
-			WatermarkColor:SetInvisible(false)
-		else
-			WatermarkColor:SetInvisible(true)
-		end
-		if EnableDesyncInvertIndicator:GetValue() then
-			DesyncInvertActiveColor:SetInvisible(false)
-
-		else
-			DesyncInvertActiveColor:SetInvisible(true)
-		end
-
 	else
 		GroupboxVisuals:SetInvisible(true)
 	end
@@ -531,7 +515,9 @@ function MayYawAA()
 	elseif math.ceil(VelocityX) < -100 then
 		gui.SetValue("rbot.antiaim.base.lby",-delta-11)
 		gui.SetValue("rbot.antiaim.base.rotation",delta)
-		gui.SetValue("rbot.antiaim.base",-167)	
+		gui.SetValue("rbot.antiaim.base",-167)
+	else
+		gui.SetValue("rbot.antiaim.base",177)	
 	end
 end
 function Delta()
@@ -574,6 +560,10 @@ function CustomMayYawAA()
 			BaseYawOffset=-BaseYawOffsetCustom
 			RotationOffset=math.abs(RotationOffset)
 			LbyOffset=-math.abs(LbyOffset)
+		else
+			gui.SetValue("rbot.antiaim.base",177)	
+		
+
 		end			
 	else
 		BaseYawOffset=BaseYawOffsetCustom
@@ -597,6 +587,20 @@ function CustomMayYawAA()
 	gui.SetValue("rbot.antiaim.base.lby",LbyOffset)
 	gui.SetValue("rbot.antiaim.base",BaseYawOffset)
 
+end
+function LegitAAonUse()
+	if input.IsButtonDown(69) then
+		gui.SetValue("rbot.antiaim.advanced.pitch",0)
+		gui.SetValue("rbot.antiaim.base",0)
+		gui.SetValue("rbot.antiaim.condition.use",0)
+	else
+		if EnableMayYawAA:GetValue()==false then 
+		
+	gui.SetValue("rbot.antiaim.base",defRotation)
+		end
+		gui.SetValue("rbot.antiaim.advanced.pitch",1)
+		gui.SetValue("rbot.antiaim.condition.use",1)	
+	end 
 end
 function DesyncInvertIndicator()
 	WightScreen,HightScreen=draw.GetScreenSize()
@@ -670,6 +674,11 @@ function Main()
 			MayYawAA()
 	
 		end
+	end
+	if EnableYaw:GetValue() and EnableLagitAAonUse:GetValue() and LocalPlayer~=nil then
+		if LocalPlayer:IsAlive() then
+			LegitAAonUse()
+		end 
 	end 
 end
 function AutoBuy(event)
