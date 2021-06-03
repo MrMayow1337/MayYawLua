@@ -15,8 +15,8 @@ EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertInd
 EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",0)
 GroupboxMisc=gui.Groupbox(MayYaw, "MayYaw Misc", 190, 10, 190, 0)
 GroupboxAutoBuy=gui.Groupbox(MayYaw, "AutoBuy", 190, 210, 190, 0)
-ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","Auto","Ssg08","AWP")
-ComboboxAutoBuySecondaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuySecondaryWeapon", "Secondary Weapon","Deagle R8","Dual","Tec9/Five Seven")
+ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","None","Auto","Ssg08","AWP")
+ComboboxAutoBuySecondaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuySecondaryWeapon", "Secondary Weapon","None","Deagle R8","Dual","Tec9/Five Seven")
 ComboboxAutoBuyArmor=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyArmor", "Armor","None","Kevlar","Kevlar + Helmet")
 EnableDmg=gui.Checkbox(GroupboxMisc,"EnableDmg","DamageOverride",0)
 EnableEngineRadar=gui.Checkbox(GroupboxMisc,"EnableEngineRadar","EngineRadar",0)
@@ -770,19 +770,23 @@ function AutoBuy(event)
 	if event:GetName() == "round_prestart" then
 		if EnableYaw:GetValue() then
 			if EnableAutoBuy:GetValue() then
-				if ComboboxAutoBuyPrimaryWeapon:GetValue()==0 then
+				if ComboboxAutoBuyPrimaryWeapon:GetValue()==1 then
 					PrimaryWeapon="buy scar20;"
-				elseif ComboboxAutoBuyPrimaryWeapon:GetValue()==1 then
+				elseif ComboboxAutoBuyPrimaryWeapon:GetValue()==2 then
 					PrimaryWeapon="buy ssg08;"
-				else
+				elseif ComboboxAutoBuyPrimaryWeapon:GetValue()==3 then
 					PrimaryWeapon="buy awp;"
+				else
+					PrimaryWeapon=""
 				end
-				if ComboboxAutoBuySecondaryWeapon:GetValue()==0 then
+				if ComboboxAutoBuySecondaryWeapon:GetValue()==1 then
 					SecondaryWeapon="buy deagle;"
-				elseif ComboboxAutoBuySecondaryWeapon:GetValue()==1 then
+				elseif ComboboxAutoBuySecondaryWeapon:GetValue()==2 then
 					SecondaryWeapon="buy elite;"
-				else 
+				elseif ComboboxAutoBuySecondaryWeapon:GetValue()==3 then 
 					SecondaryWeapon="buy tec9;"
+				else
+					SecondaryWeapon=""
 				end
 				if ComboboxAutoBuyArmor:GetValue()==0 then
 					Armor=""
