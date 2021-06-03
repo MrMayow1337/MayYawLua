@@ -1,7 +1,6 @@
 if TimeLib == nil then http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/TimeModul.lua", function(body) load(body)() end) end
 ;LastVersion=nil
 LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
-print(LastVersion)
 Version="1.3.3"
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
