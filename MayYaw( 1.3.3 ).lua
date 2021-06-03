@@ -1,9 +1,9 @@
 if TimeLib == nil then http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/TimeModul.lua", function(body) load(body)() end) end
 LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
-Version="1.3.2"
+Version="1.3.3"
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
-EnableYaw=gui.Checkbox(MainYaw, "Enableyaw", "Enable", 0)
+EnableYaw=gui.Checkbox(MainYaw, "Enableyaw", "Enable", 1)
 ComboboxMenuMode=gui.Combobox(MainYaw, "ComboxMenuMode", "Mode","Anti-Aim","Visuals","Misc")
 GroupboxMain=gui.Groupbox(MayYaw, "Press 'Enable'", 190, 10, 410, 0)
 GroupboxAntiAim=gui.Groupbox(MayYaw, "MayYaw Anti-Aim", 190, 10, 410, 0)
@@ -11,7 +11,7 @@ GroupboxVisuals=gui.Groupbox(MayYaw, "MayYaw Visuals", 190, 10, 410, 0)
 EnableIndicators=gui.Checkbox(GroupboxVisuals, "EnableIndocators", "Indicators", 0)
 EnableKeybinds=gui.Checkbox(GroupboxVisuals, "EnableKeybinds", "Keybinds", 0)
 EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertIndicator", "Desync Indicator", 0)
-EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",0)
+EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",1)
 GroupboxMisc=gui.Groupbox(MayYaw, "MayYaw Misc", 190, 10, 190, 0)
 GroupboxAutoBuy=gui.Groupbox(MayYaw, "AutoBuy", 190, 210, 190, 0)
 ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","Auto","Ssg08","AWP")
@@ -64,7 +64,7 @@ DesyncInvertActiveColor=gui.ColorPicker(EnableDesyncInvertIndicator,"DesyncInver
 Font1=draw.CreateFont("Arial Black", 15)
 Font2 = draw.CreateFont("Verdana", 13)
 Font3 = draw.CreateFont("Verdana", 12)
-FontDesync=draw.CreateFont("Calibri", 26)
+Font4=draw.CreateFont("Verdana", 15)
 
 defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
 
@@ -385,6 +385,9 @@ function Indicators()
 		draw.Text(WightScreen/2-12,HightScreen/2+53+dta+hsa,"dmg")
 	end
 
+	
+	
+	
 
 end
 function DmgOverride()
@@ -425,6 +428,25 @@ function DmgOverride()
 		end
 	end
 end
+function DesyncDelta()
+	LocalPlayer=entities.GetLocalPlayer()
+	lby = math.min(58, math.max(-58, (LocalPlayer:GetProp("m_flLowerBodyYawTarget") - LocalPlayer:GetProp("m_angEyeAngles").y + 180) % 360 - 180))
+	rot = nil
+	if gui.GetValue("rbot.master") then
+		rot = gui.GetValue("rbot.antiaim.base.rotation")
+	else
+		if lby > 0 then
+				rot = -58
+		else
+				rot = 58
+		end
+	end
+	delta = math.abs(lby - rot)
+	if gui.GetValue("rbot.antiaim.condition.use") and input.IsButtonDown(69) then
+		delta=0
+	end
+	return delta
+end
 function Watermark()
 	time = TimeLib:GetTime()
 	WightScreen,HightScreen=draw.GetScreenSize()	
@@ -454,15 +476,62 @@ function Watermark()
 	draw.SetFont(Font2)
 
 	draw.Color(1,1,1,120)
-	draw.FilledRect(WightScreen-textlen*7,13,WightScreen-textlen+25,29)
+	draw.FilledRect(WightScreen-textlen*6.8,13,WightScreen-16,32)
 	draw.Color(255,255,255,255)
-	draw.Text(WightScreen-textlen*7+7,16,"MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
+	draw.Text(WightScreen-textlen*6.67,18,"MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
 	rw,gw,bw,aw=WatermarkColor:GetValue()
 	draw.Color(rw,gw,bw,aw)
-	draw.OutlinedRect(WightScreen-textlen*7,12,WightScreen-textlen+25,13)
+	draw.FilledRect(WightScreen-textlen*6.8+1,12,WightScreen-17,14)
+	if LocalPlayer~=nil then
+		Desyncdelta= math.ceil(DesyncDelta())
+		if Desyncdelta >= 100 then
+			deltaO100=5
+		else
+			deltaO100=0
+		end
+		if gui.GetValue("rbot.accuracy.weapon.pistol.doublefire")~=0 or gui.GetValue("rbot.accuracy.weapon.hpistol.doublefire")~=0 or gui.GetValue("rbot.accuracy.weapon.smg.doublefire")~=0 or gui.GetValue("rbot.accuracy.weapon.rifle.doublefire")~=0 or gui.GetValue("rbot.accuracy.weapon.shotgun.doublefire")~=0 or gui.GetValue("rbot.accuracy.weapon.scout.doublefire")~=0 or gui.GetValue("rbot.accuracy.weapon.asniper.doublefire")~=0  or gui.GetValue("rbot.accuracy.weapon.sniper.doublefire")~=0 or gui.GetValue("rbot.accuracy.weapon.lmg.doublefire")~=0 then
+			DTon=true
+		else
+			DTon=false
+		end
+		if DTon or gui.GetValue("rbot.antiaim.condition.shiftonshot") or gui.GetValue("misc.speedburst.enable") or gui.GetValue("misc.fakelag.enable")==false then
+			FL="NO"
+		else
+			FL=gui.GetValue("misc.fakelag.factor")
+		end    
+		draw.Color(rw,gw,bw,aw)
+		draw.FilledRect(WightScreen-75,37,WightScreen-17,39)
+		draw.FilledRect(WightScreen-175,37,WightScreen-86+deltaO100,39)
+		draw.Color(1,1,1,120)
+		draw.FilledRect(WightScreen-76,37,WightScreen-16,56)
+		draw.FilledRect(WightScreen-176,37,WightScreen-85+deltaO100,56)
+		draw.Color(255,255,255,255)
+		draw.SetFont(Font4)
 
 
-	
+		draw.Text(WightScreen-68,41,"FL : "..FL )
+		draw.SetFont(Font2)
+
+
+		draw.Text(WightScreen-154,42,"FAKE ("..Desyncdelta..")")
+		x=WightScreen-165;r=6;y=47;y1=0;t=2
+		for i = 0, 360 / 100 * delta do
+			local angle = i * math.pi / 180
+			draw.Color(210, 210, 210, 255)
+			local ptx, pty = x + r * math.cos(angle), y + y1 + r * math.sin(angle)
+			local ptx_, pty_ = x + (r-t) * math.cos(angle), y + y1 + (r-t) * math.sin(angle)
+			draw.Line(ptx, pty, ptx_, pty_)
+		end
+		for i = 360 / 100 * delta + 1, 360 do
+			local angle = i * math.pi / 180
+			draw.Color(45, 45, 45, 45)
+			local ptx, pty = x + r * math.cos(angle), y + y1 + r * math.sin(angle)
+			local ptx_, pty_ = x + (r-t) * math.cos(angle), y + y1 + (r-t) * math.sin(angle)
+			draw.Line(ptx, pty, ptx_, pty_)
+		end
+		
+
+	end
 end
 function JumpScoutFix()
 	if EnableJumpScoutFix:GetValue() == false then
