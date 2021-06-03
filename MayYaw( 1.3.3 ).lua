@@ -514,7 +514,7 @@ function Watermark()
 		draw.SetFont(Font2)
 
 
-		draw.Text(WightScreen-154,42,"FAKE ("..Desyncdelta..")")
+		draw.Text(WightScreen-154,42,"FAKE ("..Desyncdelta.."°)")
 		local x=WightScreen-165;local r=6;local y=47; local y1=0; local t=2
 		for i = 0, 360 / 100 * delta do
 			local angle = i * math.pi / 180
