@@ -1,5 +1,7 @@
 if TimeLib == nil then http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/TimeModul.lua", function(body) load(body)() end) end
+;LastVersion=nil
 LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
+print(LastVersion)
 Version="1.3.3"
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
@@ -44,13 +46,13 @@ EnbaleAutoSwitchDesync=gui.Checkbox(GroupboxCustomMayYawAA,"EnbaleAutoSwitchDesy
 DesyncSwitchKey=gui.Keybox(GroupboxCustomMayYawAA,"DesyncSwitchKey","Desync Switch Key", 0 )
 DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 160, 175, 0)
 Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
-Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: 1.3.2")
+Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: "..Version)
 Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: Maybe#2990")
 LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
-LastUpddatetext=gui.Text(LastUpdGroupbox,"1.06.2021")
-LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Added Desync Indicator")
-LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] Added LegitAA on Use")
+LastUpddatetext=gui.Text(LastUpdGroupbox,"3.06.2021")
+LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Added FAKE indicator\n(watermark)")
+LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] Added FL indicator\n(watermark)")
 UpdateText=gui.Text(LastUpdGroupbox,"PLEASE DOWNLOAD \n 	 NEW VERSION".."\n\n New version: "..LastVersion.."\n\n Your Version:"..Version)
 
 
