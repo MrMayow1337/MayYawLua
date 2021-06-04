@@ -448,7 +448,9 @@ function DesyncDelta()
 	end
 	return delta
 end
+
 function Watermark()
+	
 	time = TimeLib:GetTime()
 	WightScreen,HightScreen=draw.GetScreenSize()	
 	LocalPlayer=entities.GetLocalPlayer()
@@ -472,10 +474,12 @@ function Watermark()
 		serverdelay=delay
 	end
 	
+	
 	text=("MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
 	textlen=string.len(text)
 	draw.SetFont(Font2)
 
+	
 	draw.Color(1,1,1,120)
 	draw.FilledRect(WightScreen-textlen*6.8,13,WightScreen-16,32)
 	draw.Color(255,255,255,255)
@@ -496,26 +500,29 @@ function Watermark()
 			DTon=false
 		end
 		if DTon or gui.GetValue("rbot.antiaim.condition.shiftonshot") or gui.GetValue("misc.speedburst.enable") or gui.GetValue("misc.fakelag.enable")==false then
-			FL="NO"
+			DisFLValCor=60
+			FL="1 | SHIFTING"
 		else
+			
+			DisFLValCor=0
 			FL=gui.GetValue("misc.fakelag.factor")
 		end    
 		draw.Color(rw,gw,bw,aw)
-		draw.FilledRect(WightScreen-75,37,WightScreen-17,39)
-		draw.FilledRect(WightScreen-175,37,WightScreen-86+deltaO100,39)
+		draw.FilledRect(WightScreen-75-DisFLValCor,37,WightScreen-17,39)
+		draw.FilledRect(WightScreen-175-DisFLValCor,37,WightScreen-86+deltaO100-DisFLValCor,39)
 		draw.Color(1,1,1,120)
-		draw.FilledRect(WightScreen-76,37,WightScreen-16,56)
-		draw.FilledRect(WightScreen-176,37,WightScreen-85+deltaO100,56)
+		draw.FilledRect(WightScreen-76-DisFLValCor,37,WightScreen-16,56)
+		draw.FilledRect(WightScreen-176-DisFLValCor,37,WightScreen-85+deltaO100-DisFLValCor,56)
 		draw.Color(255,255,255,255)
 		draw.SetFont(Font4)
 
 
-		draw.Text(WightScreen-68,41,"FL : "..FL )
+		draw.Text(WightScreen-68-DisFLValCor,41,"FL : "..FL )
 		draw.SetFont(Font2)
 
 
-		draw.Text(WightScreen-154,42,"FAKE ("..Desyncdelta.."°)")
-		local x=WightScreen-165;local r=6;local y=47; local y1=0; local t=2
+		draw.Text(WightScreen-154-DisFLValCor,42,"FAKE ("..Desyncdelta.."°)")
+		local x=WightScreen-165-DisFLValCor;local r=6;local y=47; local y1=0; local t=2
 		for i = 0, 360 / 100 * delta do
 			local angle = i * math.pi / 180
 			draw.Color(210, 210, 210, 255)
@@ -677,8 +684,7 @@ function LegitAAonUse()
 		gui.SetValue("rbot.antiaim.condition.use",0)
 	else
 		if EnableMayYawAA:GetValue()==false then 
-		
-	gui.SetValue("rbot.antiaim.base",defRotation)
+		gui.SetValue("rbot.antiaim.base",defRotation)
 		end
 		gui.SetValue("rbot.antiaim.advanced.pitch",1)
 		gui.SetValue("rbot.antiaim.condition.use",1)	
