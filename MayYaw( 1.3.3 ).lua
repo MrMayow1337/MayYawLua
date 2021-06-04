@@ -1,5 +1,4 @@
-if TimeLib == nil then http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/TimeModul.lua", function(body) load(body)() end) end
-;LastVersion=nil
+if TimeLib == nil then http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/TimeModul.lua", function(body) load(body)() end) end;LastVersion=nil
 LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
 Version="1.3.3"
 MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
