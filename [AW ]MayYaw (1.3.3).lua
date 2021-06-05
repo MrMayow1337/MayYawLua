@@ -476,17 +476,15 @@ function Watermark()
 	
 	
 	text=("MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
-	textlen=string.len(text)
+	textlen=draw.GetTextSize(text)
 	draw.SetFont(Font2)
-
-	
 	draw.Color(1,1,1,120)
-	draw.FilledRect(WightScreen-textlen*6.8,13,WightScreen-16,32)
+	draw.FilledRect(WightScreen-textlen,13,WightScreen-16,32)
 	draw.Color(255,255,255,255)
-	draw.Text(WightScreen-textlen*6.67,18,"MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
+	draw.Text(WightScreen-textlen+(textlen-(WightScreen-17-(WightScreen-textlen)))/2,18,"MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
 	rw,gw,bw,aw=WatermarkColor:GetValue()
 	draw.Color(rw,gw,bw,aw)
-	draw.FilledRect(WightScreen-textlen*6.8+1,12,WightScreen-17,14)
+	draw.FilledRect(WightScreen-textlen+1,12,WightScreen-17,14)
 	if LocalPlayer~=nil then
 		Desyncdelta= math.ceil(DesyncDelta())
 		if Desyncdelta >= 100 then
