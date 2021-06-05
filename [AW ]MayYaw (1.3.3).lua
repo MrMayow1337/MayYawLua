@@ -327,48 +327,48 @@ function Keybinds()
 
 end
 function Indicators()
-	fdkey=gui.GetValue("rbot.antiaim.extra.fakecrouchkey")
-	hsenable=gui.GetValue("rbot.antiaim.condition.shiftonshot")
-	WightScreen,HightScreen=draw.GetScreenSize()
-	VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
-	VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
-	LocalPlayerVelocity=math.sqrt(VelocityX^2 + VelocityY^2)
+	local fdkey=gui.GetValue("rbot.antiaim.extra.fakecrouchkey")
+	local hsenable=gui.GetValue("rbot.antiaim.condition.shiftonshot")
+	local WightScreen,HightScreen=draw.GetScreenSize()
+	local VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
+	local VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
+	local LocalPlayerVelocity=math.sqrt(VelocityX^2 + VelocityY^2)
 	draw.ShadowRect(WightScreen/2+30-LocalPlayerVelocity/35,HightScreen/2+35,WightScreen/2-30+LocalPlayerVelocity/35,HightScreen/2+38,-5)
 	draw.SetFont(Font1) draw.Text(WightScreen/2-30,HightScreen/2+20,"MAY YAW")
 		IsDtEnable()
 	
 	if dtguion and hsenable==false and input.IsButtonDown(fdkey)==false then
 		draw.Color(65, 180, 80,255)
-		dta=12
-		dtx=0
+		local dta=12
+		local dtx=0
 		draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT")
 	elseif dtguion and hsenable==true and input.IsButtonDown(fdkey)==false then
 		draw.Color(218, 218, 80,255)
-		dtx=20
-		dta=12
+		local dtx=20
+		local dta=12
 		draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT (slow)")
 	elseif dtguion and input.IsButtonDown(fdkey) then
 		draw.Color(255,0,00,255)
-		dta=12
-		dtx=55
+		local dta=12
+		local dtx=55
 		draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DESEBELD(fakeduck)")
 	else
-		dta=0
-		dtx=0
+		local dta=0
+		local dtx=0
 	end
 	if input.IsButtonDown(fdkey)==true and dtguion==false then
 		draw.Color(65,180,80,255)
 		draw.Text(WightScreen/2-8,HightScreen/2+53,"FD")
-		dta=12
+		local dta=12
 	end
 	if hsenable then
 		draw.Color(65, 180, 80,255)
 		draw.Text(WightScreen/2-8,HightScreen/2+53+dta,"HS")
-		hsa=10
+		local hsa=10
 	else
-		hsa=0
+		local hsa=0
 	end
-		slowkey = gui.GetValue("rbot.accuracy.movement.slowkey")
+		local slowkey = gui.GetValue("rbot.accuracy.movement.slowkey")
 	if input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue()==false then
 		draw.Color(255,255,255,255)
 		draw.Text(WightScreen/2-35,HightScreen/2+41,"LOW DELTA")
