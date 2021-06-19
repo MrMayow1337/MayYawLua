@@ -611,7 +611,7 @@ draw.SetFont(Font2)
 			draw.Color(255,255,255,255)
 			draw.Text(WightScreen-68-DisFLValCor,45,textfl)
 			draw.SetFont(Font2)
-			draw.Text(WightScreen-154-DisFLValCor,45,"FAKE ("..Desyncdelta..")")
+			draw.Text(WightScreen-154-DisFLValCor,45,"FAKE ("..Desyncdelta.."°)")
 			local x=WightScreen-165-DisFLValCor;local r=6;local y=50; local y1=0; local t=2
 			for i = 0, 360 / 100 * delta do
 				angle = i * math.pi / 180
