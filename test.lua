@@ -1,5 +1,5 @@
 ScriptName=GetScriptName()
-Version=1.3.5
+Version="1.3.5"
 LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
 LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/test.lua")
 if LocalVersion~=Version then
