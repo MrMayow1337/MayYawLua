@@ -1,82 +1,173 @@
-if TimeLib == nil then http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/TimeModul.lua", function(body) load(body)() end) end;LastVersion=nil
-LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "");Version="1.3.5"
-MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
-MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
-EnableYaw=gui.Checkbox(MainYaw, "Enableyaw", "Enable", 0)
-ComboboxMenuMode=gui.Combobox(MainYaw, "ComboxMenuMode", "Mode","Anti-Aim","Visuals","Misc")
-GroupboxMain=gui.Groupbox(MayYaw, "Press 'Enable'", 190, 10, 410, 0)
-GroupboxAntiAim=gui.Groupbox(MayYaw, "MayYaw Anti-Aim", 190, 10, 410, 0)
-GroupboxVisuals=gui.Groupbox(MayYaw, "MayYaw Visuals", 190, 10, 410, 0)
-EnableIndicators=gui.Checkbox(GroupboxVisuals, "EnableIndocators", "Indicators", 0)
-EnableKeybinds=gui.Checkbox(GroupboxVisuals, "EnableKeybinds", "Keybinds", 0)
-EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertIndicator", "Desync Indicator", 0)
-EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",0)
-GroupboxMisc=gui.Groupbox(MayYaw, "MayYaw Misc", 190, 10, 190, 0)
-GroupboxAutoBuy=gui.Groupbox(MayYaw, "AutoBuy", 190, 210, 190, 0)
-ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","None","Auto","Ssg08","AWP")
-ComboboxAutoBuySecondaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuySecondaryWeapon", "Secondary Weapon","None","Deagle R8","Dual","Tec9/Five Seven")
-ComboboxAutoBuyArmor=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyArmor", "Armor","None","Kevlar","Kevlar + Helmet")
-EnableDmg=gui.Checkbox(GroupboxMisc,"EnableDmg","DamageOverride",0)
-EnableEngineRadar=gui.Checkbox(GroupboxMisc,"EnableEngineRadar","EngineRadar",0)
-EnableJumpScoutFix=gui.Checkbox(GroupboxMisc,"EnableJumpScoutFix","Jump Scout Fix",0)
-EnableAutoBuy=gui.Checkbox(GroupboxMisc,"EnableAutoBuy","AutoBuy",0)
-GroupboxDMG=gui.Groupbox(MayYaw, "Damage Override", 390, 10, 240, 0)
-AwpDMGSlider=gui.Slider(GroupboxDMG, "awpdmgslider", "Awp Min Damage", 0, 1, 110 )
-AutoDMGSlider=gui.Slider(GroupboxDMG, "autodmgslider", "Auto Min Damage", 0, 1, 100 )
-Ssg08DMGSlider=gui.Slider(GroupboxDMG, "ssg08dmgslider", "Scout Min Damage", 0, 1, 110 )
-HeavypistolDMGSlider=gui.Slider(GroupboxDMG, "heavypistoldmgslider", "Heavy Pistol Min Damage", 0, 1, 100 )
-AwpDMGOverrideSlider=gui.Slider(GroupboxDMG, "awpdmgoverrideslider", "Awp Override Min Damage", 0, 1, 100 )
-AutoDMGOverrideSlider=gui.Slider(GroupboxDMG, "autodmgoverrideslider", "Auto Override Min Damage", 0, 1, 100 )
-Ssg08DMGOverrideSlider=gui.Slider(GroupboxDMG, "ssg08dmgoverrideslider", "Scout Override Min Damage", 0, 1, 100 )
-HeavyPistolDMGOverrideSlider=gui.Slider(GroupboxDMG, "heavypistoldmgoverrideslider", "Heavy Pistol Override Min Damage", 0, 1, 100 )
-ComboboxDMGmode=gui.Combobox(GroupboxDMG, "ComboboxDMGmode", "Mode","Hold","Toggle")
-DMGKey=gui.Keybox(GroupboxDMG,"DMGKey","Key", 0 )
-EnableMayYawAA=gui.Checkbox(GroupboxAntiAim,"EnableMayYawAA","MayYawAA",0)
-EnableCustomMayYawAA=gui.Checkbox(GroupboxAntiAim,"EbableCustomMayYawAA","Custom MayYawAA",0)
-EnableLagitAAonUse=gui.Checkbox(GroupboxAntiAim,"EnableLagitAAonUse","Legit AA on Use",0)
-GroupboxCustomMayYawAA=gui.Groupbox(MayYaw, "Custom MayYaw AA",  190, 175, 410, 0)
-RotationSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "RotationSliderCustom", "Rotation Offset", 0, -58, 58 )
-LBYSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "LBYSliderCustom", "LBY Offset", 0, -180, 180 )
-BaseYawSliderCustom=gui.Slider(GroupboxCustomMayYawAA,"BaseYawSliderCustom","Base Yaw Offset",0,-180,180)
-EnableLowDelta=gui.Checkbox(GroupboxCustomMayYawAA, "EnableLowDelta", "LowDelta",0)
-EnbaleAutoSwitchDesync=gui.Checkbox(GroupboxCustomMayYawAA,"EnbaleAutoSwitchDesync","Auto Desync Switch",0)
-DesyncSwitchKey=gui.Keybox(GroupboxCustomMayYawAA,"DesyncSwitchKey","Desync Switch Key", 0 )
-DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 160, 175, 0)
-Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
-Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: "..Version)
-Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
-DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: MrMaybe#2990")
-LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
-LastUpddatetext=gui.Text(LastUpdGroupbox,"7.06.2021")
-LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Fixed minor bugs")
-LastUpdlog2text=gui.Text(LastUpdGroupbox,"[-] Removed ClanTag")
-UpdateText=gui.Text(LastUpdGroupbox,"PLEASE DOWNLOAD \n 	 NEW VERSION".."\n\n New version: "..LastVersion.."\n\n Your Version:"..Version)
-WatermarkColor=gui.ColorPicker(EnableWatermark,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
-KeybindsColor=gui.ColorPicker(EnableKeybinds,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
-DesyncInvertActiveColor=gui.ColorPicker(EnableDesyncInvertIndicator,"DesyncInvertActiveColor","Active Arrow Color", 0,255, 0, 255 )
+local ScriptName=GetScriptName()
+local Version="1.3.5"
+local LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
+local LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/MayYaw%20.lua")
+if LastVersion~=Version then
+	file.Delete(ScriptName)
+	file.Open(ScriptName,"w")
+	file.Write(ScriptName,LastScript)
+end
+local MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
+local MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
+local EnableYaw=gui.Checkbox(MainYaw, "Enableyaw", "Enable", 1)
+local ComboboxMenuMode=gui.Combobox(MainYaw, "ComboxMenuMode", "Mode","Anti-Aim","Visuals","Misc")
+local GroupboxMain=gui.Groupbox(MayYaw, "Press 'Enable'", 190, 10, 410, 0)
+local GroupboxAntiAim=gui.Groupbox(MayYaw, "MayYaw Anti-Aim", 190, 10, 410, 0)
+local GroupboxVisuals=gui.Groupbox(MayYaw, "MayYaw Visuals", 190, 10, 410, 0)
+local EnableIndicators=gui.Checkbox(GroupboxVisuals, "EnableIndocators", "Indicators", 0)
+local EnableKeybinds=gui.Checkbox(GroupboxVisuals, "EnableKeybinds", "Keybinds", 0)
+local EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertIndicator", "Desync Indicator", 0)
+local EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",0)
+local EnableClantag=gui.Checkbox(GroupboxVisuals,"EnableClantag","Clantag",0)
+local AspectRatioDefValSlider=gui.Slider(GroupboxVisuals,"AspectRatioVal","Aspect Ratio",0,0,200)
+local GroupboxMisc=gui.Groupbox(MayYaw, "MayYaw Misc", 190, 10, 190, 0)
+local GroupboxAutoBuy=gui.Groupbox(MayYaw, "AutoBuy", 190, 250, 190, 0)
+local ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","None","Auto","Ssg08","AWP")
+local ComboboxAutoBuySecondaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuySecondaryWeapon", "Secondary Weapon","None","Deagle R8","Dual","Tec9/Five Seven")
+local ComboboxAutoBuyArmor=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyArmor", "Armor","None","Kevlar","Kevlar + Helmet")
+local EnableDmg=gui.Checkbox(GroupboxMisc,"EnableDmg","DamageOverride",0)
+local EnableEngineRadar=gui.Checkbox(GroupboxMisc,"EnableEngineRadar","EngineRadar",0)
+local EnableJumpScoutFix=gui.Checkbox(GroupboxMisc,"EnableJumpScoutFix","Jump Scout Fix",0)
+local EnableAutoBuy=gui.Checkbox(GroupboxMisc,"EnableAutoBuy","AutoBuy",0)
+local EnableHitLog=gui.Checkbox(GroupboxMisc,"EnableHitLog","Advanced Damage Log",0)
+local GroupboxDMG=gui.Groupbox(MayYaw, "Damage Override", 390, 10, 240, 0)
+local AwpDMGOverrideSlider=gui.Slider(GroupboxDMG, "awpdmgoverrideslider", "Awp Override Min Damage", 0, 1, 100 )
+local AutoDMGOverrideSlider=gui.Slider(GroupboxDMG, "autodmgoverrideslider", "Auto Override Min Damage", 0, 1, 100 )
+local Ssg08DMGOverrideSlider=gui.Slider(GroupboxDMG, "ssg08dmgoverrideslider", "Scout Override Min Damage", 0, 1, 100 )
+local HeavyPistolDMGOverrideSlider=gui.Slider(GroupboxDMG, "heavypistoldmgoverrideslider", "Heavy Pistol Override Min Damage", 0, 1, 100 )
+local ComboboxDMGmode=gui.Combobox(GroupboxDMG, "ComboboxDMGmode", "Mode","Hold","Toggle")
+local DMGKey=gui.Keybox(GroupboxDMG,"DMGKey","Key", 0 )
+local EnableMayYawAA=gui.Checkbox(GroupboxAntiAim,"EnableMayYawAA","MayYawAA",0)
+local EnableCustomMayYawAA=gui.Checkbox(GroupboxAntiAim,"EbableCustomMayYawAA","Custom MayYawAA",0)
+local EnableLagitAAonUse=gui.Checkbox(GroupboxAntiAim,"EnableLagitAAonUse","Legit AA on Use",0)
+local GroupboxCustomMayYawAA=gui.Groupbox(MayYaw, "Custom MayYaw AA",  190, 175, 410, 0)
+local RotationSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "RotationSliderCustom", "Rotation Offset", 0, -58, 58 )
+local LBYSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "LBYSliderCustom", "LBY Offset", 0, -180, 180 )
+local BaseYawSliderCustom=gui.Slider(GroupboxCustomMayYawAA,"BaseYawSliderCustom","Base Yaw Offset",0,-180,180)
+local EnableLowDelta=gui.Checkbox(GroupboxCustomMayYawAA, "EnableLowDelta", "LowDelta",0)
+local EnbaleAutoSwitchDesync=gui.Checkbox(GroupboxCustomMayYawAA,"EnbaleAutoSwitchDesync","Auto Desync Switch",0)
+local ComboboxAutoDesyncInvertMode=gui.Combobox(GroupboxCustomMayYawAA, "ComboboxAutoDesyncInvertMode", "Desync Switch Mode","Distance","Local Player Velocity","Near crosshair")
+local DesyncSwitchKey=gui.Keybox(GroupboxCustomMayYawAA,"DesyncSwitchKey","Desync Switch Key", 0 )
+local DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 160, 175, 0)
+local Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
+local Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: "..Version)
+local Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
+local DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: MrMaybe#2990")
+
+local LastUpdGroupboxNotLatUpd=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
+local LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
+local LastUpddatetext=gui.Text(LastUpdGroupbox,"19.06.2021")
+local LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Auto Update")
+local LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] Advanced DmgLog")
+local LastUpdlog3text=gui.Text(LastUpdGroupbox,"[+] AspectRatio")
+local LastUpdlog4text=gui.Text(LastUpdGroupbox,"[+] ClanTag")
+local LastUpdlog5text=gui.Text(LastUpdGroupbox,"[+] 3 mode of AutoDSwitch")
+local LastUpdlog6text=gui.Text(LastUpdGroupbox,"[=] Reworked MayYawAA")
+local LastUpdlog7text=gui.Text(LastUpdGroupbox,"[=] Reworked DmgOverride")
+local LastUpdlog8text=gui.Text(LastUpdGroupbox,"[=] Reworked Watermark")
+local LastUpdlog9text=gui.Text(LastUpdGroupbox,"[=] Script Optimized ")
+local UpdateText=gui.Text(LastUpdGroupboxNotLatUpd,"PLEASE RELOAD SCRIPT".."\n\n New version: "..LastVersion.."\n\n Your Version:"..Version)
+local WatermarkColor=gui.ColorPicker(EnableWatermark,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
+local KeybindsColor=gui.ColorPicker(EnableKeybinds,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
+local DesyncInvertActiveColor=gui.ColorPicker(EnableDesyncInvertIndicator,"DesyncInvertActiveColor","Active Arrow Color", 0,255, 0, 255 )
+--[All ffi
+ffi.cdef [[
+    void* GetProcAddress(void* hModule, const char* lpProcName);
+    void* GetModuleHandleA(const char* lpModuleName);
+
+    typedef struct {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        uint8_t a;
+    } color_struct_t;
+
+    typedef void (*console_color_print)(const color_struct_t&, const char*, ...);
+
+    typedef void* (__thiscall* get_client_entity_t)(void*, int);
+]]
+local ffi_log = ffi.cast("console_color_print", ffi.C.GetProcAddress(ffi.C.GetModuleHandleA("tier0.dll"), "?ConColorMsg@@YAXABVColor@@PBDZZ"))
+local SetClantag= ffi.cast('int(__fastcall*)(const char*, const char*)', mem.FindPattern('engine.dll', '53 56 57 8B DA 8B F9 FF 15'))
+--]All ffi
+--Fuctions:
+	--Render GradientRect
+function GradientRect(x,y,hight,wight,r,g,b,a)
+	hight=a/hight
+	if hight > 0 then
+		for i=a, 0, -hight do
+			draw.Color(r,g,b,i)
+			draw.FilledRect(x,y,x+2,wight)
+			x=x+1
+		end
+	elseif hight < 0 then
+		for i=0, a, -hight do
+			draw.Color(r,g,b,i)
+			draw.FilledRect(x,y,x+2,wight)
+			x=x+1
+		end
+	end
+end
+	--Color Log
+	function client.color_log(r, g, b, msg, ...)
+	    for k, v in pairs({...}) do
+	        msg = tostring(msg .. v)
+	    end
+	    local clr = ffi.new("color_struct_t")
+	   	clr.r, clr.g, clr.b, clr.a = r, g, b, 255
+	    ffi_log(clr, msg)
+	end
+	--HitGroup for Damagelog
+	function HitGroup(HitGroup)
+	    if HitGroup == nil then
+	        return;
+	    elseif HitGroup == 0 then
+	        return "body";
+	    elseif HitGroup == 1 then
+	        return "head";
+	    elseif HitGroup == 2 then
+	        return "chest";
+	    elseif HitGroup== 3 then
+	        return "stomach";
+	    elseif HitGroup == 4 then
+	        return "left arm";
+	    elseif HitGroup == 5 then
+	        return "right arm";
+	    elseif HitGroup == 6 then
+	        return "left leg";
+	    elseif HitGroupP == 7 then
+	        return "right leg";
+	    elseif HitGroup == 10 then
+	        return "body";
+	    end
+	end
 
 --Default Presets
+local AspectRatioDefVal=0
+local HitScore=1
+local DesyncSide="Left"
+max=100000000
+mindist=max
 Font1=draw.CreateFont("Arial Black", 15)
 Font2 = draw.CreateFont("Verdana", 13)
 Font3 = draw.CreateFont("Verdana", 12)
 Font4=draw.CreateFont("Verdana", 15)
 defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
 defRotation=gui.GetValue("rbot.antiaim.base")
-gui.SetValue("mayyaw.awpdmgslider",gui.GetValue("rbot.accuracy.weapon.sniper.mindmg"))
-gui.SetValue("mayyaw.autodmgslider",gui.GetValue("rbot.accuracy.weapon.asniper.mindmg"))
-gui.SetValue("mayyaw.ssg08dmgslider",gui.GetValue("rbot.accuracy.weapon.scout.mindmg"))
-gui.SetValue("mayyaw.heavypistoldmgslider",gui.GetValue("rbot.accuracy.weapon.hpistol.mindmg"))
-toggle
-=-1
-DesyncSwitchToggle=-1
-x1=100;y1=100;wight=230;hight=200
+awpdefdmg=gui.GetValue("rbot.accuracy.weapon.sniper.mindmg")
+autodefdmg=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
+ssgdefdmg=gui.GetValue("rbot.accuracy.weapon.scout.mindmg")
+heavydefdmg=gui.GetValue("rbot.accuracy.weapon.hpistol.mindmg")
+local toggle
+=1
+local DesyncSwitchToggle=-1
+local x1=100; local y1=100; local wight=230;local hight=200
 --Version
 if LastVersion~=Version then
-	LastUpddatetext:SetInvisible(true)
-	LastUpdlog1text:SetInvisible(true)
-	LastUpdlog2text:SetInvisible(true)
+	LastUpdGroupboxNotLatUpd:SetInvisible(false)
+	LastUpdGroupbox:SetInvisible(true)
 else
-	UpdateText:SetInvisible(true)
+	LastUpdGroupboxNotLatUpd:SetInvisible(true)
+	LastUpdGroupbox:SetInvisible(false)
 end
 --Function for gui elements
 function GuiElements()
@@ -89,14 +180,19 @@ function GuiElements()
 		if EnableMayYawAA:GetValue() then
 			if EnableCustomMayYawAA:GetValue() then
 				if EnbaleAutoSwitchDesync:GetValue() then
-					DesyncSwitchKey:SetDisabled(true)
+
+					ComboboxAutoDesyncInvertMode:SetInvisible(false)
+
+					DesyncSwitchKey:SetInvisible(true)
 				else
-					DesyncSwitchKey:SetDisabled(false)
+					DesyncSwitchKey:SetInvisible(false)
+					ComboboxAutoDesyncInvertMode:SetInvisible(true)
+
 				end
 			end
-			EnableCustomMayYawAA:SetDisabled(false)
+			EnableCustomMayYawAA:SetInvisible(false)
 		else
-			EnableCustomMayYawAA:SetDisabled(true)
+			EnableCustomMayYawAA:SetInvisible(true)
 			EnableCustomMayYawAA:SetValue(false)
 		end
 		if EnableCustomMayYawAA:GetValue() then
@@ -118,18 +214,18 @@ function GuiElements()
 	end
 	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==2 then
 		if EnableAutoBuy:GetValue() then
-			GroupboxAutoBuy:SetDisabled(false)
+			GroupboxAutoBuy:SetInvisible(false)
+
 		else
-			GroupboxAutoBuy:SetDisabled(true)
+			GroupboxAutoBuy:SetInvisible(true)
+
 		end
 		if EnableDmg:GetValue() then
-			GroupboxDMG:SetDisabled(false)
+			GroupboxDMG:SetInvisible(false)
 		else
-			GroupboxDMG:SetDisabled(true)
+			GroupboxDMG:SetInvisible(true)
 		end
-		GroupboxDMG:SetInvisible(false)
 		GroupboxMisc:SetInvisible(false)
-		GroupboxAutoBuy:SetInvisible(false)
 	else
 		GroupboxDMG:SetInvisible(true)
 		GroupboxMisc:SetInvisible(true)
@@ -147,7 +243,7 @@ vel=ucmd.sidemove
 end);
 --function for Check is DmgOverride active
 function isDmgEnable()
-	dmgovkey=gui.GetValue("mayyaw.DMGKey")
+	local dmgovkey=gui.GetValue("mayyaw.DMGKey")
 	if EnableYaw:GetValue() and EnableDmg:GetValue() and dmgovkey~=0 then
 		if ComboboxDMGmode:GetValue() == 0 then
 			if input.IsButtonDown(dmgovkey) then
@@ -157,27 +253,27 @@ function isDmgEnable()
 			end
 		elseif ComboboxDMGmode:GetValue() == 1 then
 			if toggle == 1 then
-				return true
-			elseif toggle == -1 then
 				return false
+			elseif toggle == -1 then
+				return true
 			end
 		end
 	end
 end
 --function for Check is DT enable in active weapon
 function IsDtEnable()
-	lp=entities.GetLocalPlayer()
+	local lp=entities.GetLocalPlayer()
 	if lp~=nil and lp:IsAlive() then
-		AwpDtEnable=gui.GetValue("rbot.accuracy.weapon.sniper.doublefire")
-		Ssg08DtEnable=gui.GetValue("rbot.accuracy.weapon.scout.doublefire")
-		PistolDtEnable=gui.GetValue("rbot.accuracy.weapon.pistol.doublefire")
-		AutoDtEnable=gui.GetValue("rbot.accuracy.weapon.asniper.doublefire")
-		HeavypistolDtEnable=gui.GetValue("rbot.accuracy.weapon.hpistol.doublefire")
-		SmgDtEnable=gui.GetValue("rbot.accuracy.weapon.smg.doublefire")
-		RifleDtEnable=gui.GetValue("rbot.accuracy.weapon.rifle.doublefire")
-		ShotgunDtEnable=gui.GetValue("rbot.accuracy.weapon.shotgun.doublefire")
-		Lightmgenable=gui.GetValue("rbot.accuracy.weapon.lmg.doublefire")
-		lpaw=lp:GetWeaponID()
+		local AwpDtEnable=gui.GetValue("rbot.accuracy.weapon.sniper.doublefire")
+		local Ssg08DtEnable=gui.GetValue("rbot.accuracy.weapon.scout.doublefire")
+		local PistolDtEnable=gui.GetValue("rbot.accuracy.weapon.pistol.doublefire")
+		local AutoDtEnable=gui.GetValue("rbot.accuracy.weapon.asniper.doublefire")
+		local HeavypistolDtEnable=gui.GetValue("rbot.accuracy.weapon.hpistol.doublefire")
+		local SmgDtEnable=gui.GetValue("rbot.accuracy.weapon.smg.doublefire")
+		local RifleDtEnable=gui.GetValue("rbot.accuracy.weapon.rifle.doublefire")
+		local ShotgunDtEnable=gui.GetValue("rbot.accuracy.weapon.shotgun.doublefire")
+		local Lightmgenable=gui.GetValue("rbot.accuracy.weapon.lmg.doublefire")
+		local lpaw=lp:GetWeaponID()
 		if lpaw==2 or lapw==3 or lpaw==4 or lpaw==30 or lpaw==32 or lpaw==36 or lpaw==61 or lpaw==63 then
 			wclass="pistol"
 		elseif lpaw==9 then
@@ -225,7 +321,7 @@ function IsDtEnable()
 end
 --function Keybinds
 function Keybinds()
-	xmouse,ymouse=input.GetMousePos()
+	local xmouse,ymouse=input.GetMousePos()
 	if xmouse>x1 and ymouse > y1 and xmouse < wight and ymouse < hight and input.IsButtonDown(1) then
 		x1=xmouse-60
 		y1=ymouse-50
@@ -233,17 +329,17 @@ function Keybinds()
 		hight=y1+100
 	end
 	draw.SetFont(Font3)
-	FdKey=gui.GetValue("rbot.antiaim.extra.fakecrouchkey")
-	DtEnable=IsDtEnable()
-	HsEnable=gui.GetValue("rbot.antiaim.condition.shiftonshot")
-	SlowEnable=gui.GetValue("rbot.accuracy.movement.slowkey")
-	SpeedburstEnable=gui.GetValue("misc.speedburst.enable")
-	SpeedburstKey=gui.GetValue("misc.speedburst.key")
-	EnableAutoPeek=gui.GetValue("rbot.accuracy.movement.autopeek")
-	AutoPeekKey=gui.GetValue("rbot.accuracy.movement.autopeekkey")
+	local FdKey=gui.GetValue("rbot.antiaim.extra.fakecrouchkey")
+	local DtEnable=IsDtEnable()
+	local HsEnable=gui.GetValue("rbot.antiaim.condition.shiftonshot")
+	local SlowEnable=gui.GetValue("rbot.accuracy.movement.slowkey")
+	local SpeedburstEnable=gui.GetValue("misc.speedburst.enable")
+	local SpeedburstKey=gui.GetValue("misc.speedburst.key")
+	local EnableAutoPeek=gui.GetValue("rbot.accuracy.movement.autopeek")
+	local AutoPeekKey=gui.GetValue("rbot.accuracy.movement.autopeekkey")
 	draw.Color(1,1,1,120)
 	draw.FilledRect(x1,y1,wight,y1+20)
-	rk,gk,bk,ak=KeybindsColor:GetValue()
+	local rk,gk,bk,ak=KeybindsColor:GetValue()
 	draw.Color(rk,gk,bk,ak)
 	draw.FilledRect(x1,y1,wight,y1+2)
 	draw.Color(1,1,1,255)
@@ -305,7 +401,7 @@ function Keybinds()
 		speedost=0
 	end
 	if AutoPeekKey~=0 and EnableAutoPeek==true then
-		if input.IsButtonDown(AutoPeekKey) then
+		if input.IsButtonDown(AutoPeeddakKey) then
 			draw.Color(1,1,1,255)
 			draw.Text(x1+6,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [holding]")
 			draw.Color(255,255,255,255)
@@ -315,15 +411,18 @@ function Keybinds()
 end
 --function Indicators
 function Indicators()
-	fdkey=gui.GetValue("rbot.antiaim.extra.fakecrouchkey")
-	hsenable=gui.GetValue("rbot.antiaim.condition.shiftonshot")
-	WightScreen,HightScreen=draw.GetScreenSize()
-	VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
-	VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
-	LocalPlayerVelocity=math.sqrt(VelocityX^2 + VelocityY^2)
-	draw.ShadowRect(WightScreen/2+30-LocalPlayerVelocity/35,HightScreen/2+35,WightScreen/2-30+LocalPlayerVelocity/35,HightScreen/2+38,-5)
-	draw.SetFont(Font1) draw.Text(WightScreen/2-30,HightScreen/2+20,"MAY YAW")
-	dtguion=IsDtEnable()
+	local fdkey=gui.GetValue("rbot.antiaim.extra.fakecrouchkey")
+	local hsenable=gui.GetValue("rbot.antiaim.condition.shiftonshot")
+	local WightScreen,HightScreen=draw.GetScreenSize()
+	local VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
+	local VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
+	local LocalPlayerVelocity=math.sqrt(VelocityX^2 + VelocityY^2)
+	--draw.ShadowRect(WightScreen/2+30-LocalPlayerVelocity/35,HightScreen/2+35,WightScreen/2-30+LocalPlayerVelocity/35,HightScreen/2+38,-5)
+	GradientRect(WightScreen/2,HightScreen/2+35,30-LocalPlayerVelocity/35,HightScreen/2+38,255,255,255,255)
+	GradientRect(WightScreen/2-30+LocalPlayerVelocity/35,HightScreen/2+35,-30+LocalPlayerVelocity/35,HightScreen/2+38,255,255,255,255)
+	draw.Color(255,255,255,255)
+	draw.SetFont(Font1) draw.Text(WightScreen/2-29,HightScreen/2+20,"MAY YAW")
+	local dtguion=IsDtEnable()
 	if dtguion and hsenable==false and input.IsButtonDown(fdkey)==false then
 		draw.Color(65, 180, 80,255)
 		dta=12
@@ -374,34 +473,46 @@ end
 --function Damage Override
 function DmgOverride()
 	if EnableYaw:GetValue() and EnableDmg:GetValue() then
-		dmgovkey=gui.GetValue("mayyaw.DMGKey")
+		local dmgovkey=gui.GetValue("mayyaw.DMGKey")
 		if dmgovkey~=0 then
 			if ComboboxDMGmode:GetValue() ==0 then
+				if input.IsButtonPressed(dmgovkey) then
+					awpdefdmg=gui.GetValue("rbot.accuracy.weapon.sniper.mindmg")
+					autodefdmg=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
+					ssgdefdmg=gui.GetValue("rbot.accuracy.weapon.scout.mindmg")
+					heavydefdmg=gui.GetValue("rbot.accuracy.weapon.hpistol.mindmg")
+				end
 				if input.IsButtonDown(dmgovkey) then
 					gui.SetValue("rbot.accuracy.weapon.sniper.mindmg",gui.GetValue("mayyaw.awpdmgoverrideslider"))
 					gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",gui.GetValue("mayyaw.autodmgoverrideslider"))
 					gui.SetValue("rbot.accuracy.weapon.scout.mindmg",gui.GetValue("mayyaw.ssg08dmgoverrideslider"))
 					gui.SetValue("rbot.accuracy.weapon.hpistol.mindmg",gui.GetValue("mayyaw.heavypistoldmgoverrideslider"))
-				else
-					gui.SetValue("rbot.accuracy.weapon.sniper.mindmg",gui.GetValue("mayyaw.awpdmgslider"))
-					gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",gui.GetValue("mayyaw.autodmgslider"))
-					gui.SetValue("rbot.accuracy.weapon.scout.mindmg",gui.GetValue("mayyaw.ssg08dmgslider"))
-					gui.SetValue("rbot.accuracy.weapon.hpistol.mindmg",gui.GetValue("mayyaw.heavypistoldmgslider"))
+				elseif input.IsButtonReleased( dmgovkey ) then
+					gui.SetValue("rbot.accuracy.weapon.sniper.mindmg",awpdefdmg)
+					gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",autodefdmg)
+					gui.SetValue("rbot.accuracy.weapon.scout.mindmg",ssgdefdmg)
+					gui.SetValue("rbot.accuracy.weapon.hpistol.mindmg",heavydefdmg)
 				end
 			elseif ComboboxDMGmode:GetValue() == 1 then
 				if input.IsButtonPressed(dmgovkey) then
 					toggle=toggle*-1
 				end
-				if toggle==1 then
+				if toggle==-1 and input.IsButtonPressed(dmgovkey) then
+					awpdefdmg=gui.GetValue("rbot.accuracy.weapon.sniper.mindmg")
+					autodefdmg=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
+					ssgdefdmg=gui.GetValue("rbot.accuracy.weapon.scout.mindmg")
+					heavydefdmg=gui.GetValue("rbot.accuracy.weapon.hpistol.mindmg")
+				end 
+				if toggle==-1 and input.IsButtonPressed(dmgovkey) then
 					gui.SetValue("rbot.accuracy.weapon.sniper.mindmg",gui.GetValue("mayyaw.awpdmgoverrideslider"))
 					gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",gui.GetValue("mayyaw.autodmgoverrideslider"))
 					gui.SetValue("rbot.accuracy.weapon.scout.mindmg",gui.GetValue("mayyaw.ssg08dmgoverrideslider"))
 					gui.SetValue("rbot.accuracy.weapon.hpistol.mindmg",gui.GetValue("mayyaw.heavypistoldmgoverrideslider"))
-				elseif toggle==-1 then
-					gui.SetValue("rbot.accuracy.weapon.sniper.mindmg",gui.GetValue("mayyaw.awpdmgslider"))
-					gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",gui.GetValue("mayyaw.autodmgslider"))
-					gui.SetValue("rbot.accuracy.weapon.scout.mindmg",gui.GetValue("mayyaw.ssg08dmgslider"))
-					gui.SetValue("rbot.accuracy.weapon.hpistol.mindmg",gui.GetValue("mayyaw.heavypistoldmgslider"))
+				elseif toggle==1 and input.IsButtonPressed(dmgovkey) then
+					gui.SetValue("rbot.accuracy.weapon.sniper.mindmg",awpdefdmg)
+					gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",autodefdmg)
+					gui.SetValue("rbot.accuracy.weapon.scout.mindmg",ssgdefdmg)
+					gui.SetValue("rbot.accuracy.weapon.hpistol.mindmg",heavydefdmg)
 				end
 			end
 		end
@@ -409,9 +520,9 @@ function DmgOverride()
 end
 --function for getting desync angle
 function DesyncDelta()
-	LocalPlayer=entities.GetLocalPlayer()
-	lby = math.min(58, math.max(-58, (LocalPlayer:GetProp("m_flLowerBodyYawTarget") - LocalPlayer:GetProp("m_angEyeAngles").y + 180) % 360 - 180))
-	rot = nil
+	local LocalPlayer=entities.GetLocalPlayer()
+	local lby = math.min(58, math.max(-58, (LocalPlayer:GetProp("m_flLowerBodyYawTarget") - LocalPlayer:GetProp("m_angEyeAngles").y + 180) % 360 - 180))
+	local rot = nil
 	if gui.GetValue("rbot.master") then
 		rot = gui.GetValue("rbot.antiaim.base.rotation")
 	else
@@ -429,10 +540,9 @@ function DesyncDelta()
 end
 --function Watermark
 function Watermark()
-	time = TimeLib:GetTime()
-	WightScreen,HightScreen=draw.GetScreenSize()
-	LocalPlayer=entities.GetLocalPlayer()
-	UserName=client.GetConVar("name")
+	local WightScreen,HightScreen=draw.GetScreenSize()
+	local LocalPlayer=entities.GetLocalPlayer()
+	local UserName=client.GetConVar("name")
 	if LocalPlayer ~= nil then
 		pr=entities.GetPlayerResources()
 		delay = pr:GetPropInt("m_iPing", entities.GetLocalPlayer():GetIndex())
@@ -450,17 +560,23 @@ function Watermark()
 		serverip=server
 		serverdelay=delay
 	end
-	draw.SetFont(Font4)
-	text=("MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
-	textlen=draw.GetTextSize(text)
-	draw.SetFont(Font2)
+	textot=16
+
+draw.SetFont(Font2)
+	local text=("MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip)
+	local textlen=draw.GetTextSize(text)
+	local rw,gw,bw,aw=WatermarkColor:GetValue()
 	draw.Color(1,1,1,120)
-	draw.FilledRect(WightScreen-textlen,13,WightScreen-16,32)
+	draw.FilledRect(WightScreen-textlen-2*textot,10,WightScreen-textot,32)
 	draw.Color(255,255,255,255)
-	draw.Text(WightScreen-textlen+(textlen-(WightScreen-17-(WightScreen-textlen)))/2,18,"MayYaw | " ..UserName .. " | delay: " .. delay .." ms | " ..serverip.." | "..time.Hours..":"..time.Minutes..":"..time.Seconds)
-	rw,gw,bw,aw=WatermarkColor:GetValue()
-	draw.Color(rw,gw,bw,aw)
-	draw.FilledRect(WightScreen-textlen+1,12,WightScreen-17,14)
+	draw.Text(WightScreen-textlen-textot*1.5,16,text)
+	GradientRect((WightScreen-textlen-2*textot)+(textlen+textot)/2,10,(textot+textlen)/2,13,rw,gw,bw,aw)
+	GradientRect((WightScreen-textlen-2*textot),10,-(textot+textlen)/2,13,rw,gw,bw,aw)
+	GradientRect((WightScreen-textlen-2*textot)+(textlen+textot)/2,30,(textot+textlen)/2,33,rw,gw,bw,aw)
+	GradientRect((WightScreen-textlen-2*textot),30,-(textot+textlen)/2,33,rw,gw,bw,aw)
+
+
+
 	if LocalPlayer~=nil then
 		Desyncdelta= math.ceil(DesyncDelta())
 		if Desyncdelta >= 100 then
@@ -481,18 +597,22 @@ function Watermark()
 			FL=gui.GetValue("misc.fakelag.factor")
 		end
 		if LocalPlayer:IsAlive() then
-			draw.Color(rw,gw,bw,aw)
-			draw.FilledRect(WightScreen-75-DisFLValCor,37,WightScreen-17,39)
-			draw.FilledRect(WightScreen-175-DisFLValCor,37,WightScreen-86+deltaO100-DisFLValCor,39)
 			draw.Color(1,1,1,120)
-			draw.FilledRect(WightScreen-76-DisFLValCor,37,WightScreen-16,56)
-			draw.FilledRect(WightScreen-176-DisFLValCor,37,WightScreen-85+deltaO100-DisFLValCor,56)
+			draw.FilledRect(WightScreen-76-DisFLValCor,38,WightScreen-textot,59)
+			draw.FilledRect(WightScreen-176-DisFLValCor,38,WightScreen-85+deltaO100-DisFLValCor,59)
+			local textfl=("FL : "..FL)
+			local textfllen=draw.GetTextSize(textfl)
+			draw.Color(rw,gw,bw,aw)
+			GradientRect((WightScreen-76-DisFLValCor)+(WightScreen-textot-WightScreen+76+DisFLValCor)/2-2,38,(WightScreen-textot-WightScreen+76+DisFLValCor)/2,41,rw,gw,bw,aw)
+			GradientRect(WightScreen-77-DisFLValCor,38,-(WightScreen-textot-WightScreen+76+DisFLValCor)/2,41,rw,gw,bw,aw)
+			GradientRect((WightScreen-176-DisFLValCor)+(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,38,(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,41,rw,gw,bw,aw)
+			GradientRect(WightScreen-176-DisFLValCor,38,-(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,41,rw,gw,bw,aw)
+
 			draw.Color(255,255,255,255)
-			draw.SetFont(Font4)
-			draw.Text(WightScreen-68-DisFLValCor,41,"FL : "..FL )
+			draw.Text(WightScreen-68-DisFLValCor,45,textfl)
 			draw.SetFont(Font2)
-			draw.Text(WightScreen-154-DisFLValCor,42,"FAKE ("..Desyncdelta.."°)")
-			local x=WightScreen-165-DisFLValCor;local r=6;local y=47; local y1=0; local t=2
+			draw.Text(WightScreen-154-DisFLValCor,45,"FAKE ("..Desyncdelta..")")
+			local x=WightScreen-165-DisFLValCor;local r=6;local y=50; local y1=0; local t=2
 			for i = 0, 360 / 100 * delta do
 				angle = i * math.pi / 180
 				draw.Color(210, 210, 210, 255)
@@ -516,7 +636,7 @@ function JumpScoutFix()
 		defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
 	end
 	if EnableYaw:GetValue() and EnableJumpScoutFix:GetValue() then
-		lp=entities.GetLocalPlayer()
+		local lp=entities.GetLocalPlayer()
 		if lp ~=nil then
 			if lp:IsAlive() then
 				playervelocity = math.sqrt(lp:GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + lp:GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
@@ -561,16 +681,20 @@ function EngineRadar()
 end
 --function MayYawAA
 function MayYawAA()
-	LocalPlayer=entities.GetLocalPlayer()
+	local LocalPlayer=entities.GetLocalPlayer()
 	SlowEnable=gui.GetValue("rbot.accuracy.movement.slowkey")
 	gui.SetValue("rbot.antiaim.advanced.antialign",1)
 	Delta()
-	VelocityX = vel
-	if math.ceil(VelocityX) > 100 then
+	local mode="Distance"
+	local DesyncSide=DesyncSideFunc(mode)
+	if DesyncSide==nil then
+		DesyncSide="Left"
+	end
+	if DesyncSide == "Right" then
 		gui.SetValue("rbot.antiaim.base.lby",delta+11)
 		gui.SetValue("rbot.antiaim.base.rotation",-delta)
 		gui.SetValue("rbot.antiaim.base",176)
-	elseif math.ceil(VelocityX) < -100 then
+	elseif DesyncSide == "Left" then
 		gui.SetValue("rbot.antiaim.base.lby",-delta-11)
 		gui.SetValue("rbot.antiaim.base.rotation",delta)
 		gui.SetValue("rbot.antiaim.base",-167)
@@ -589,10 +713,10 @@ function Delta()
 end
 --function CustomMayYawAA
 function CustomMayYawAA()
-	LocalPlayer=entities.GetLocalPlayer()
-	RotationOffsetCustom=gui.GetValue("mayyaw.RotationSliderCustom")
-	LbyOffsetCustom=gui.GetValue("mayyaw.LBYSliderCustom")
-	BaseYawOffsetCustom=gui.GetValue("mayyaw.BaseYawSliderCustom")
+	local LocalPlayer=entities.GetLocalPlayer()
+	local RotationOffsetCustom=gui.GetValue("mayyaw.RotationSliderCustom")
+	local LbyOffsetCustom=gui.GetValue("mayyaw.LBYSliderCustom")
+	local BaseYawOffsetCustom=gui.GetValue("mayyaw.BaseYawSliderCustom")
 	if EnableLowDelta:GetValue() and input.IsButtonDown(SlowEnable) then
 		if RotationOffsetCustom<0 then
 			RotationOffset=-17
@@ -611,12 +735,21 @@ function CustomMayYawAA()
 		LbyOffset=LbyOffsetCustom
 	end
 	if EnbaleAutoSwitchDesync:GetValue() then
-		VelocityX = vel
-		if math.ceil(VelocityX) > 100 then
+
+
+if ComboboxAutoDesyncInvertMode:GetValue() == 0 then
+			mode="Distance"
+		elseif ComboboxAutoDesyncInvertMode:GetValue() == 1 then
+			mode="Local Player Velocity"
+		elseif ComboboxAutoDesyncInvertMode:GetValue() == 2 then
+			mode="Near crosshair"
+		end
+		local DesyncSide=DesyncSideFunc(mode)
+		if DesyncSide=="Right" then
 			BaseYawOffset=BaseYawOffsetCustom
 			RotationOffset=-math.abs(RotationOffset)
 			LbyOffset=math.abs(LbyOffset)
-		elseif math.ceil(VelocityX) < -100 then
+		elseif DesyncSide=="Left" then
 			BaseYawOffset=-BaseYawOffsetCustom
 			RotationOffset=math.abs(RotationOffset)
 			LbyOffset=-math.abs(LbyOffset)
@@ -661,7 +794,7 @@ function LegitAAonUse()
 end
 --function Desync Indicator
 function DesyncInvertIndicator()
-	WightScreen,HightScreen=draw.GetScreenSize()
+	local WightScreen,HightScreen=draw.GetScreenSize()
 	if gui.GetValue("rbot.antiaim.base.lby") > 0 then
 		DesyncSide="Right"
 	end
@@ -706,7 +839,7 @@ function DesyncInvertIndicator()
 end
 --function for calling other functions)
 function Main()
-	LocalPlayer=entities.GetLocalPlayer()
+	local LocalPlayer=entities.GetLocalPlayer()
 	if EnableYaw:GetValue() and EnableIndicators:GetValue() and LocalPlayer ~=nil and LocalPlayer:IsAlive() then
 		Indicators()
 	end
@@ -738,6 +871,10 @@ function Main()
 		if LocalPlayer:IsAlive() then
 			LegitAAonUse()
 		end
+	end
+	if EnableYaw:GetValue() and LocalPlayer~=nil then
+ 
+		AspectRatio()
 	end
 end
 function AutoBuy(event)
@@ -774,9 +911,184 @@ function AutoBuy(event)
 		end
 	end
 end
+function DesyncSideFunc(mode)
+	local WightScreen,HightScreen=draw.GetScreenSize()
+	local localplayer=entities.GetLocalPlayer()
+	players = entities.FindByClass( "CCSPlayer" );
+	if localplayer~=nil and table.maxn(players)>1 then
+		local localpos=localplayer:GetAbsOrigin()
+		local x1=localpos.x
+		local y1=localpos.y
+		local z1=localpos.z
+		for i = 1, #players do
+			player=players[i]
+			entpos=player:GetAbsOrigin()
+			if player:IsAlive() then
+				if player:GetIndex() ~=localplayer:GetIndex() and player:GetTeamNumber()~=localplayer:GetTeamNumber() and player:GetTeamNumber()~=1 then
+					local x2=entpos.x
+					local y2=entpos.y
+					local z2=entpos.z
+					--At Dist mode
+					if mode == "Distance" then
+						dist=vector.Distance( { x1, y1, z1 }, { x2, y2, z2 } )
+						if dist<mindist then
+							mindist=dist
+							playerDesync=player
+						end
+					end
+					--near cross
+					if mode == "Near crosshair" then
+						enemyx,enemyy=client.WorldToScreen(player:GetAbsOrigin()
++Vector3(0,0,50))
+						if enemyx~=nil and enemyy~=nil then
+							dist=math.sqrt((math.abs(WightScreen/2-enemyx))^2+(math.abs(HightScreen/2-enemyy))^2)
+							if dist<mindist then
+								mindist=dist
+								playerDesync=player
+							end
+						end
+					end
+					if mode=="Local Player Velocity" then
+						if vel == 450 then
+							DesyncSide="Right"
+						end
+						if vel == -450 then
+							DesyncSide="Left"
+						end
+						return DesyncSide
+					end
+				end
+			end
+		end
+		mindist=1000000
+		if playerDesync~=nil and ComboboxAutoDesyncInvertMode:GetValue()~=1 then
+			local EnemyPosX=playerDesync:GetAbsOrigin().x
+			local EnemyPosY=playerDesync:GetAbsOrigin().y
+			local LocalPosX=localpos.x
+			local LocalPosY=localpos.y
+			if LocalPosX > 0 and LocalPosY > 0 then
+				LocalChet=1
+			elseif LocalPosX < 0 and LocalPosY > 0 then
+				LocalPChet=2
+			elseif LocalPosX < 0 and LocalPosY < 0 then
+				LocalPChet=3
+			elseif LocalPosX > 0 and LocalPosY < 0 then
+				LocalPChet=4
+			end
+			local ViewAngle=engine.GetViewAngles().y
+			if EnemyPosX > LocalPosX and EnemyPosY > LocalPosY then
+				if ViewAngle > 0 and ViewAngle < 45 then
+					DesyncSide="Left"
+				end
+				if ViewAngle > 45 and ViewAngle < 90 then
+					DesyncSide="Right"
+				end
+			end
+			if EnemyPosX < LocalPosX and EnemyPosY > LocalPosY then
+				if ViewAngle > 90 and ViewAngle < 135 then
+					DesyncSide="Left"
+				end
+				if ViewAngle > 135 and ViewAngle < 180 then
+					DesyncSide="Right"
+				end
+			end
+			if EnemyPosX < LocalPosX and EnemyPosY < LocalPosY then
+				if ViewAngle > -180 and ViewAngle < -135 then
+					DesyncSide="Left"
+				end
+				if ViewAngle > -135 and ViewAngle < -90 then
+					DesyncSide="Right"
+				end
+			end
+			if EnemyPosX > LocalPosX and EnemyPosY < LocalPosY then
+				if ViewAngle > -90 and ViewAngle < -45 then
+					DesyncSide="Left"
+				end
+				if ViewAngle > -45 and ViewAngle < 0 then
+					DesyncSide="Right"
+				end
+			end
+			return DesyncSide
+		end
+	end
+end
+animation={"M","M","Ma","Ma","May","May","MayY","MayY","MayYa","MayYa","MayYaw","MayYaw","MayYaw","MayYa","MayYa","MayY","MayY","May","May","Ma","Ma","M","M","",""}
+function Clantag()
+	if EnableClantag:GetValue() and EnableYaw:GetValue() then
+		local CurTime = math.floor(globals.CurTime() * 2.3);
+    	if OldTime ~= CurTime then
+    	    SetClantag(animation[CurTime % #animation+1], animation[CurTime % #animation+1]);
+    	end
+    	OldTime = CurTime;
+		clantagset = 1;
+	else
+		if clantagset == 1 then
+            clantagset = 0;
+            SetClantag("", "");
+        end
+	end
+end
+function DamageLog(event)
+	local LocalPlayer = entities.GetLocalPlayer();
+	if EnableYaw:GetValue() and EnableHitLog:GetValue() and LocalPlayer~=nil and LocalPlayer:IsAlive() then
+		if event:GetName()=="player_death" or event:GetName()=="round_start" then
+			local UserD=entities.GetByUserID(event:GetInt('userid'))
+			if LocalPlayer:GetIndex()==UserD:GetIndex() then
+				HitScore=1
+			end
+		end
+		if event:GetName()~="weapon_fire" and event:GetName()~="player_hurt" then
+			return
+		end
+		local user = entities.GetByUserID(event:GetInt('userid'));
+		if (LocalPlayer == nil or user == nil) then
+			return
+		end
+		if event:GetName()=="player_hurt" then
+			local attacker = entities.GetByUserID(event:GetInt('attacker'));
+			local remainingHealth = event:GetInt('health');
+			local damageDone = event:GetInt('dmg_health');
+			if attacker == nil then
+				return
+			end
+			if (LocalPlayer:GetIndex() == attacker:GetIndex()) then
+				local safty=math.floor(100-LocalPlayer:GetWeaponInaccuracy()*500)
+				if safty >= 60 then
+					safty="true"
+				elseif safty < 60 then
+					safty="false"
+				elseif safty==nil then
+					safty="false"
+				end
+				if gui.GetValue("rbot.antiaim.condition.shiftonshot") and IsDtEnable() then
+					Exploits=2
+				elseif gui.GetValue("rbot.antiaim.condition.shiftonshot") or IsDtEnable() then
+					Exploits=1
+				else
+					Exploits=0
+				end
+				local maxticks=gui.Reference('Misc', 'General', 'Server', 'sv_maxusrcmdprocessticks'):GetValue()
+				local simtime = globals.TickCount() % maxticks 
+				local log=("["..HitScore.."] ".."Hit "..user:GetName().." in the "..HitGroup(event:GetInt('hitgroup')).." for "..damageDone.." damage ("..remainingHealth.." remaining)".." safty="..safty.." ("..simtime..":"..Exploits..")".."\n")
+				HitScore=HitScore+1
+				client.color_log(0,255,162,"[MayYaw] ")
+				client.color_log(94,152,217, log .. "\n")
+			end
+		end
+	end
+end
+function AspectRatio()
+	NewAsp=AspectRatioDefValSlider:GetValue()
+	if NewAsp~=AspectRatioDefVal then
+		client.SetConVar( "r_aspectratio", NewAsp/100, true)
+		AspectRatioDefVal=NewAsp
+	end
+end
 client.AllowListener("round_prestart");
 callbacks.Register("CreateMove",JumpScoutFix)
 callbacks.Register("Draw",Main)
+callbacks.Register("Draw",Clantag)
+callbacks.Register( "FireGameEvent",DamageLog)
 callbacks.Register( "FireGameEvent", AutoBuy)
 callbacks.Register("Draw",GuiElements)
 callbacks.Register("Draw",EngineRadar)
