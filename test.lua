@@ -1,11 +1,14 @@
 ScriptName=GetScriptName()
-Version="1.3.5"
+Version="1"
 LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
 LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/test.lua")
 if LocalVersion~=Version then
 	file.Delete(ScriptName)
 	file.Open(ScriptName,"w")
 	file.Write(ScriptName,LastScript)
+	ShowUpdateLogo=true
+else
+	ShowUpdateLogo=false
 end
 local MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 local MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
@@ -18,10 +21,8 @@ local EnableIndicators=gui.Checkbox(GroupboxVisuals, "EnableIndocators", "Indica
 local EnableKeybinds=gui.Checkbox(GroupboxVisuals, "EnableKeybinds", "Keybinds", 0)
 local EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertIndicator", "Desync Indicator", 0)
 local EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",0)
-
 local EnableClantag=gui.Checkbox(GroupboxVisuals,"EnableClantag","Clantag",0)
 local AspectRatioDefValSlider=gui.Slider(GroupboxVisuals,"AspectRatioVal","Aspect Ratio",0,0,200)
-
 local GroupboxMisc=gui.Groupbox(MayYaw, "MayYaw Misc", 190, 10, 190, 0)
 local GroupboxAutoBuy=gui.Groupbox(MayYaw, "AutoBuy", 190, 250, 190, 0)
 local ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","None","Auto","Ssg08","AWP")
@@ -139,6 +140,16 @@ end
 	        return "body";
 	    end
 	end
+--Function dor Draw Logo
+OldTime=globals.CurTime() 
+function ShowUpdateLogo()
+	if ShowUpdateLogo then
+		NewTime=globals.CurTime()
+		if (NewTime-OldTime)<15 then
+			draw.Text(100,100,"PLEAS RELOAD SCRIPT")
+		end 
+	end
+end 
 --Default Presets
 local AspectRatioDefVal=0
 local HitScore=1
@@ -1086,7 +1097,7 @@ client.AllowListener("round_prestart");
 callbacks.Register("CreateMove",JumpScoutFix)
 callbacks.Register("Draw",Main)
 callbacks.Register("Draw",Clantag)
-
+callbacks.Register("Draw",ShowUpdateLogo)
 callbacks.Register( "FireGameEvent",DamageLog)
 callbacks.Register( "FireGameEvent", AutoBuy)
 callbacks.Register("Draw",GuiElements)
