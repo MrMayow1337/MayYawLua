@@ -1,8 +1,8 @@
-ScriptName=GetScriptName()
-Version="1"
-LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
-LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/test.lua")
-if LocalVersion~=Version then
+local ScriptName=GetScriptName()
+local Version="1.3.5"
+local LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
+local LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/test.lua")
+if LastVersion~=Version then
 	file.Delete(ScriptName)
 	file.Open(ScriptName,"w")
 	file.Write(ScriptName,LastScript)
@@ -142,11 +142,39 @@ end
 	end
 --Function dor Draw Logo
 OldTime=globals.CurTime() 
-function ShowUpdateLogo()
-	if ShowUpdateLogo then
+function ShowUpdateLogoFunc()
+	TextMainLogo="MayYaw lua"
+	TextSuccessLoad=("Successfully loaded latest version: v"..Version)
+	TextAvailUpdate=("Update available, please reload the script.")
+	OtsMain=draw.GetTextSize(TextMainLogo)
+	WightScreen,HightScreen=draw.GetScreenSize()
+	if ShowUpdateLogo==true then
 		NewTime=globals.CurTime()
 		if (NewTime-OldTime)<15 then
-			draw.Text(100,100,"PLEAS RELOAD SCRIPT")
+			GradientRect(0,0,WightScreen/3,30,1,1,1,120)			
+			GradientRect(0,31,WightScreen/3,32,0,255,205,255)
+			draw.Color(255,255,255,255)
+			draw.SetFont(draw.CreateFont("Bahnschrift", 20))
+			draw.Text(35,7,TextMainLogo)
+			draw.Color(0,255,205,255)
+			draw.SetFont(draw.CreateFont("Bahnschrift", 17))
+			draw.Line(150,24,142,5)
+			draw.Color(255,255,255,255)
+			draw.Text(50+OtsMain+44,8,TextAvailUpdate)
+		end
+	else
+		NewTime=globals.CurTime()
+		if (NewTime-OldTime)<15 then
+			GradientRect(0,0,WightScreen/3,30,1,1,1,120)			
+			GradientRect(0,31,WightScreen/3,32,0,255,205,255)
+			draw.Color(255,255,255,255)
+			draw.SetFont(draw.CreateFont("Bahnschrift", 20))
+			draw.Text(35,7,TextMainLogo)
+			draw.Color(0,255,205,255)
+			draw.SetFont(draw.CreateFont("Bahnschrift", 17))
+			draw.Line(150,24,142,5)
+			draw.Color(255,255,255,255)
+			draw.Text(50+OtsMain+44,8,TextSuccessLoad)			
 		end 
 	end
 end 
@@ -1097,7 +1125,7 @@ client.AllowListener("round_prestart");
 callbacks.Register("CreateMove",JumpScoutFix)
 callbacks.Register("Draw",Main)
 callbacks.Register("Draw",Clantag)
-callbacks.Register("Draw",ShowUpdateLogo)
+callbacks.Register("Draw",ShowUpdateLogoFunc)
 callbacks.Register( "FireGameEvent",DamageLog)
 callbacks.Register( "FireGameEvent", AutoBuy)
 callbacks.Register("Draw",GuiElements)
