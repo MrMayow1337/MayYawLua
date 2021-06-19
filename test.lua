@@ -6,9 +6,6 @@ if LastVersion~=Version then
 	file.Delete(ScriptName)
 	file.Open(ScriptName,"w")
 	file.Write(ScriptName,LastScript)
-	ShowUpdateLogo=true
-else
-	ShowUpdateLogo=false
 end
 local MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 local MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
@@ -56,6 +53,7 @@ local Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
 local Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: "..Version)
 local Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 local DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: MrMaybe#2990")
+
 local LastUpdGroupboxNotLatUpd=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
 local LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
 local LastUpddatetext=gui.Text(LastUpdGroupbox,"19.06.2021")
@@ -142,44 +140,7 @@ end
 	        return "body";
 	    end
 	end
---Function dor Draw Logo
-OldTime=globals.CurTime() 
-function ShowUpdateLogoFunc()
-	TextMainLogo="MayYaw lua"
-	TextSuccessLoad=("Successfully loaded latest version: v"..Version)
-	TextAvailUpdate=("Update available, please reload the script.")
-	OtsMain=draw.GetTextSize(TextMainLogo)
-	WightScreen,HightScreen=draw.GetScreenSize()
-	if ShowUpdateLogo==true then
-		NewTime=globals.CurTime()
-		if (NewTime-OldTime)<15 then
-			GradientRect(0,0,WightScreen/3,30,1,1,1,120)			
-			GradientRect(0,31,WightScreen/3,32,0,255,205,255)
-			draw.Color(255,255,255,255)
-			draw.SetFont(draw.CreateFont("Bahnschrift", 20))
-			draw.Text(35,7,TextMainLogo)
-			draw.Color(0,255,205,255)
-			draw.SetFont(draw.CreateFont("Bahnschrift", 17))
-			draw.Line(150,24,142,5)
-			draw.Color(255,255,255,255)
-			draw.Text(50+OtsMain+44,8,TextAvailUpdate)
-		end
-	else
-		NewTime=globals.CurTime()
-		if (NewTime-OldTime)<15 then
-			GradientRect(0,0,WightScreen/3,30,1,1,1,120)			
-			GradientRect(0,31,WightScreen/3,32,0,255,205,255)
-			draw.Color(255,255,255,255)
-			draw.SetFont(draw.CreateFont("Bahnschrift", 20))
-			draw.Text(35,7,TextMainLogo)
-			draw.Color(0,255,205,255)
-			draw.SetFont(draw.CreateFont("Bahnschrift", 17))
-			draw.Line(150,24,142,5)
-			draw.Color(255,255,255,255)
-			draw.Text(50+OtsMain+44,8,TextSuccessLoad)			
-		end 
-	end
-end 
+
 --Default Presets
 local AspectRatioDefVal=0
 local HitScore=1
@@ -1127,7 +1088,6 @@ client.AllowListener("round_prestart");
 callbacks.Register("CreateMove",JumpScoutFix)
 callbacks.Register("Draw",Main)
 callbacks.Register("Draw",Clantag)
-callbacks.Register("Draw",ShowUpdateLogoFunc)
 callbacks.Register( "FireGameEvent",DamageLog)
 callbacks.Register( "FireGameEvent", AutoBuy)
 callbacks.Register("Draw",GuiElements)
