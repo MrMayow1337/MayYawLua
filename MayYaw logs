@@ -54,4 +54,15 @@ Version: 1.3.5
 7.06.2021
 [+]Fixed minor bugs
 [-]Removed ClanTag
-
+-------------------------------------------------------
+Version 1.4
+19.06.21
+[+]Added Auto Update
+[+]Added Advanced damage log
+[+]Added AspectRatio
+[+]Returned ClanTag
+[+]Added 3 mod of AutoDesyncSwitch(Distance, LocalPlayer Velocity, NearCrosshair)
+[=]Reworked MayYawAA
+[=]Reworked Dmg Override
+[=]Reworked Watermark
+[=]Script optimized
