@@ -4,6 +4,6 @@ LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337
 Script=string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/test.lua"), "\n", "")
 if LocalVersion~=LastVersion then
 	file.Delete(ScriptName)
-	file.Open(ScriptName,w)
+	file.Open(ScriptName,"w")
   file.Write(ScriptName,Script)
 end
