@@ -1,7 +1,7 @@
 ScriptName=GetScriptName()
 Version=1.3.5
 LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
-LastScript=string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/test.lua"), "\n", "")
+LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/test.lua")
 if LocalVersion~=Version then
 	file.Delete(ScriptName)
 	file.Open(ScriptName,"w")
