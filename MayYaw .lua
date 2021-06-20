@@ -1,5 +1,5 @@
 local ScriptName=GetScriptName()
-local Version="1.4"
+local Version="1.4 "
 local LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
 local LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/MayYaw%20.lua")
 if LastVersion~=Version then
@@ -364,7 +364,7 @@ function Keybinds()
 	else
 		hsots=0
 	end
-	if input.IsButtonDown(FdKey) then
+	if FdKey~=0 and input.IsButtonDown(FdKey) then
 		draw.Color(1,1,1,255)
 		draw.Text(x1+6,y1+27+dtots+hsots,"Fake duck   	   [holding]")
 		draw.Color(255,255,255,255)
@@ -373,7 +373,7 @@ function Keybinds()
 	else
 		fdost=0
 	end
-	if input.IsButtonDown(SlowEnable) then
+	if SlowEnable~=0 and input.IsButtonDown(SlowEnable) then
 		draw.Color(1,1,1,255)
 		draw.Text(x1+6,y1+27+dtots+hsots+fdost,"Slow walk   	    [holding]")
 		draw.Color(255,255,255,255)
@@ -391,7 +391,7 @@ function Keybinds()
 	else
 		dmgost=0
 	end
-	if SpeedburstEnable==true and input.IsButtonDown(SpeedburstKey) then
+	if SpeedburstEnable==true and SpeedburstKey~=0 and input.IsButtonDown(SpeedburstKey) then
 		draw.Color(1,1,1,255)
 		draw.Text(x1+6,y1+27+dtots+hsots+fdost+slowost+dmgost,"Speed burst   	[holding]")
 		draw.Color(255,255,255,255)
@@ -400,7 +400,7 @@ function Keybinds()
 	else
 		speedost=0
 	end
-	if AutoPeekKey~=0 and EnableAutoPeek==true then
+	if AutoPeekKey~=0 and AutoPeeddakKey~=0 and EnableAutoPeek==true then
 		if input.IsButtonDown(AutoPeeddakKey) then
 			draw.Color(1,1,1,255)
 			draw.Text(x1+6,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [holding]")
@@ -423,26 +423,42 @@ function Indicators()
 	draw.Color(255,255,255,255)
 	draw.SetFont(Font1) draw.Text(WightScreen/2-29,HightScreen/2+20,"MAY YAW")
 	local dtguion=IsDtEnable()
-	if dtguion and hsenable==false and input.IsButtonDown(fdkey)==false then
-		draw.Color(65, 180, 80,255)
-		dta=12
-		dtx=0
-		draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT")
-	elseif dtguion and hsenable==true and input.IsButtonDown(fdkey)==false then
-		draw.Color(218, 218, 80,255)
-		dtx=20
-		dta=12
-		draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT (slow)")
-	elseif dtguion and input.IsButtonDown(fdkey) then
-		draw.Color(255,0,00,255)
-		dta=12
-		dtx=55
-		draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DESEBELD(fakeduck)")
-	else
-		dta=0
-		dtx=0
+	if fdkey~=0 then
+		if dtguion and hsenable==false and input.IsButtonDown(fdkey)==false then
+			draw.Color(65, 180, 80,255)
+			dta=12
+			dtx=0
+			draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT")
+		elseif dtguion and hsenable==true and input.IsButtonDown(fdkey)==false then
+			draw.Color(218, 218, 80,255)
+			dtx=20
+			dta=12
+			draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT (slow)")
+		elseif dtguion and input.IsButtonDown(fdkey) then
+			draw.Color(255,0,00,255)
+			dta=12
+			dtx=55
+			draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DESEBELD(fakeduck)")
+		else
+			dta=0
+			dtx=0
+		end
 	end
-	if input.IsButtonDown(fdkey)==true and dtguion==false then
+	if fdkey==0 then
+		if dtguion and hsenable==false then
+			draw.Color(65, 180, 80,255)
+			dta=12
+			dtx=0
+			draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT")
+		elseif dtguion and hsenable==true then
+			draw.Color(218, 218, 80,255)
+			dtx=20
+			dta=12
+			draw.Text(WightScreen/2-8-dtx,HightScreen/2+53,"DT (slow)")
+		end
+		 
+	end
+	if fdkey~=0 and input.IsButtonDown(fdkey)==true and dtguion==false then
 		draw.Color(65,180,80,255)
 		draw.Text(WightScreen/2-8,HightScreen/2+53,"FD")
 		dta=12
@@ -455,10 +471,10 @@ function Indicators()
 		hsa=0
 	end
 		slowkey = gui.GetValue("rbot.accuracy.movement.slowkey")
-	if input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue()==false then
+	if slowkey~=0 and input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue()==false then
 		draw.Color(255,255,255,255)
 		draw.Text(WightScreen/2-35,HightScreen/2+41,"LOW DELTA")
-	elseif input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue() and EnableLowDelta:GetValue() then
+	elseif slowkey~=0 and input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue() and EnableLowDelta:GetValue() then
 		draw.Color(255,255,255,255)
 		draw.Text(WightScreen/2-35,HightScreen/2+41,"LOW DELTA")
 	else
