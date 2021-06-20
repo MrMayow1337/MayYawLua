@@ -400,8 +400,8 @@ function Keybinds()
 	else
 		speedost=0
 	end
-	if AutoPeekKey~=0 and AutoPeeddakKey~=0 and EnableAutoPeek==true then
-		if input.IsButtonDown(AutoPeeddakKey) then
+	if AutoPeekKey~=0 and EnableAutoPeek==true then
+		if input.IsButtonDown(AutoPeekKey) then
 			draw.Color(1,1,1,255)
 			draw.Text(x1+6,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [holding]")
 			draw.Color(255,255,255,255)
