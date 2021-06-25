@@ -66,3 +66,14 @@ Version 1.4
 [=]Reworked Dmg Override
 [=]Reworked Watermark
 [=]Script optimized
+-------------------------------------------------------
+Version 1.5
+25.06.2021
+[+]Added Advanced At Target with 2 modesI(FOV, Distance) 
+[+]Added DmgLog Color
+[+]Added Autobuy Grenade
+[+]Added Custom LowDelta Value
+[+]Added Pistol dmg Override
+[+]Added Dmg Value in Keybinds
+[+]Added Time in Watermark
+[=]Reworked MayYawAA
