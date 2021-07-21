@@ -1,5 +1,5 @@
 local ScriptName=GetScriptName()
-local Version="1.5"
+local Version="1.6";
 local LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
 local LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/MayYaw%20.lua")
 if LastVersion~=Version then
@@ -7,33 +7,59 @@ file.Delete(ScriptName)
 	file.Open(ScriptName,"w")
 	file.Write(ScriptName,LastScript)
 end
+ConfigList={}
+file.Enumerate(function(file)
+    if string.match(file, "%.dat") then
+        table.insert(ConfigList, file:sub(15,-5))
+    end
+end)
+local Aimwaremenu=gui.Reference("MENU")
 local MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 local MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
-local EnableYaw=gui.Checkbox(MainYaw, "Enableyaw", "Enable", 1)
-local ComboboxMenuMode=gui.Combobox(MainYaw, "ComboxMenuMode", "Mode","Anti-Aim","Visuals","Misc")
+local EnableYaw=gui.Checkbox(MainYaw, "Enableyaw", "Enable", false)
+local ComboboxMenuMode=gui.Combobox(MainYaw, "ComboxMenuMode", "Tab Selection","General","Anti-Aim","Visuals","Misc","Config")
 local GroupboxMain=gui.Groupbox(MayYaw, "Press 'Enable'", 190, 10, 410, 0)
 local GroupboxAntiAim=gui.Groupbox(MayYaw, "MayYaw Anti-Aim", 190, 10, 410, 0)
-local GroupboxVisuals=gui.Groupbox(MayYaw, "MayYaw Visuals", 190, 10, 410, 0)
-local EnableIndicators=gui.Checkbox(GroupboxVisuals, "EnableIndocators", "Indicators", 0)
-local EnableKeybinds=gui.Checkbox(GroupboxVisuals, "EnableKeybinds", "Keybinds", 0)
-local EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertIndicator", "Desync Indicator", 0)
-local EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",0)
-local EnableClantag=gui.Checkbox(GroupboxVisuals,"EnableClantag","Clantag",0)
-local AspectRatioDefValSlider=gui.Slider(GroupboxVisuals,"AspectRatioVal","Aspect Ratio",0,0,200)
+local GroupboxVisuals=gui.Groupbox(MayYaw, "MayYaw Visuals", 190, 10, 200, 0)
+local GroupboxVisualsValue=gui.Groupbox(MayYaw, "MayYaw Visuals Value", 400, 10, 225, 0)
+local GroupboxConfigs=gui.Groupbox(MayYaw, "MayYaw Configs", 190, 10, 230, 0)
+local GroupboxCodesActions=gui.Groupbox(MayYaw, "MayYaw Actions with Codes", 190, 280, 230, 0)
+local EditBoxCodes=gui.Editbox(GroupboxCodesActions, "EditBoxCodes", "Config Code" )
+local GroupboxConfigsActions=gui.Groupbox(MayYaw, "MayYaw Actions with Configs", 425, 10, 200, 0)
+local EditBoxConfig=gui.Editbox( GroupboxConfigsActions, "EditBoxConfig", "Config Name" )
+local ListboxConfig=gui.Listbox( GroupboxConfigs, "ListboxConfig", 200, unpack(ConfigList))
+local EnableIndicators=gui.Checkbox(GroupboxVisuals, "EnableIndocators", "Indicators", false)
+local EnableKeybinds=gui.Checkbox(GroupboxVisuals, "EnableKeybinds", "Keybinds", false)
+local EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertIndicator", "Desync Indicator", false)
+local EnableWatermark=gui.Checkbox(GroupboxVisuals,"EnableWatermark","Watermark",false)
+local EnableNightMode=gui.Checkbox( GroupboxVisuals, "EnableNightMode", "Night Mode", false )
+local EnableAcpectRatio=gui.Checkbox( GroupboxVisuals, "EnableAcpectRation", "Aspect Ratio", false )
+local ComboboxKeybindsStyles=gui.Combobox(GroupboxVisualsValue, "ComboboxKeybindsStyles", "Keybinds Styles","Default","Sense")
+local ComboboxWatermarkStyles=gui.Combobox(GroupboxVisualsValue, "ComboboxWatermarkStyles", "Watermark Styles","Default","Sense")
+local AspectRatioDefValSlider=gui.Slider(GroupboxVisualsValue,"AspectRatioVal","Aspect Ratio Value",0,0,200)
+local NightModeValSlider=gui.Slider(GroupboxVisualsValue, "NightModeValSlider", "Night Mode Value", 100, 1, 100);
+local GroupboxGeneral=gui.Groupbox(MayYaw, "MayYaw General", 190, 10, 200, 0)
+local GroupboxGeneralValue=gui.Groupbox(MayYaw, "MayYaw General Value", 400, 10, 225, 0)
+local EnableCustomDoubleTapMode=gui.Checkbox(GroupboxGeneral,"EnableCustomDoubleTapMode","Custom Double fire",false)
+local EnableJumpScoutFix=gui.Checkbox(GroupboxGeneral,"EnableJumpScoutFix","Jump Scout Fix",false)
+local EnableNoScopeHitChance=gui.Checkbox(GroupboxGeneral,"EnableNoScopeHitChance","NoScope Hit Chance",false)
+local EnableDoubleFireDamageHpdiv2=gui.Checkbox(GroupboxGeneral,"DoubleFireDamageHpdiv2","DT dmg Enemy HP/2",false)
+local ComboboxCustomDoubleFireMode=gui.Combobox(GroupboxGeneralValue,"ComboboxCustomDoubleFireMode","Double fire mode","Adaptive","Faster(Inaccuracy)","Standart","Slow")
+local NoScopeHitChanceSlider=gui.Slider(GroupboxGeneralValue,"NoScopeHitChanceSlider", "NoScope Hit Chance Value", 0, 0, 100)
 local GroupboxMisc=gui.Groupbox(MayYaw, "MayYaw Misc", 190, 10, 230, 0)
 local GroupboxAutoBuy=gui.Groupbox(MayYaw, "AutoBuy", 190, 250, 230, 0)
 local ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","None","Auto","Ssg08","AWP")
 local ComboboxAutoBuySecondaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuySecondaryWeapon", "Secondary Weapon","None","Deagle R8","Dual","Tec9/Five Seven")
 local ComboboxAutoBuyArmor=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyArmor", "Armor","None","Kevlar","Kevlar + Helmet")
 local GrenadeMultibox=gui.Multibox(GroupboxAutoBuy,"Grenade")
-local EnableBuyGrenade=gui.Checkbox(GrenadeMultibox, "EnableBuyGrenade", "Grenade", 0)
-local EnableBuyMolotov=gui.Checkbox(GrenadeMultibox, "EnableBuyMolotov", "Molotov", 0)
-local EnableBuySmoke=gui.Checkbox(GrenadeMultibox, "EnableBuySmoke", "Smoke", 0)
-local EnableDmg=gui.Checkbox(GroupboxMisc,"EnableDmg","DamageOverride",0)
-local EnableEngineRadar=gui.Checkbox(GroupboxMisc,"EnableEngineRadar","EngineRadar",0)
-local EnableJumpScoutFix=gui.Checkbox(GroupboxMisc,"EnableJumpScoutFix","Jump Scout Fix",0)
-local EnableAutoBuy=gui.Checkbox(GroupboxMisc,"EnableAutoBuy","AutoBuy",0)
-local EnableHitLog=gui.Checkbox(GroupboxMisc,"EnableHitLog","Advanced Damage Log",0)
+local EnableBuyGrenade=gui.Checkbox(GrenadeMultibox, "EnableBuyGrenade", "Grenade", false)
+local EnableBuyMolotov=gui.Checkbox(GrenadeMultibox, "EnableBuyMolotov", "Molotov", false)
+local EnableBuySmoke=gui.Checkbox(GrenadeMultibox, "EnableBuySmoke", "Smoke", false)
+local EnableDmg=gui.Checkbox(GroupboxMisc,"EnableDmg","DamageOverride",false)
+local EnableEngineRadar=gui.Checkbox(GroupboxMisc,"EnableEngineRadar","EngineRadar",false)
+local EnableAutoBuy=gui.Checkbox(GroupboxMisc,"EnableAutoBuy","AutoBuy",false)
+local EnableHitLog=gui.Checkbox(GroupboxMisc,"EnableHitLog","Advanced Damage Log",false)
+local EnableClantag=gui.Checkbox(GroupboxMisc,"EnableClantag","Clantag",false)
 local GroupboxDMG=gui.Groupbox(MayYaw, "Damage Override", 430, 10, 200, 0)
 local AwpDMGOverrideSlider=gui.Slider(GroupboxDMG, "awpdmgoverrideslider", "Awp Override Min Damage", 0, 1, 130 )
 local AutoDMGOverrideSlider=gui.Slider(GroupboxDMG, "autodmgoverrideslider", "Auto Override Min Damage", 0, 1, 130 )
@@ -42,18 +68,18 @@ local HeavyPistolDMGOverrideSlider=gui.Slider(GroupboxDMG, "heavypistoldmgoverri
 local PistolDMGOverrideSlider=gui.Slider(GroupboxDMG, "pistoldmgoverrideslider", "Pistol Override Min Damage", 0, 1, 130 )
 local ComboboxDMGmode=gui.Combobox(GroupboxDMG, "ComboboxDMGmode", "Mode","Hold","Toggle")
 local DMGKey=gui.Keybox(GroupboxDMG,"DMGKey","Key", 0 )
-local EnableMayYawAA=gui.Checkbox(GroupboxAntiAim,"EnableMayYawAA","MayYawAA",0)
-local EnableCustomMayYawAA=gui.Checkbox(GroupboxAntiAim,"EbableCustomMayYawAA","Custom MayYawAA",0)
-local EnableLagitAAonUse=gui.Checkbox(GroupboxAntiAim,"EnableLagitAAonUse","Legit AA on Use",0)
-local EnableAdvancedAtTarget=gui.Checkbox(GroupboxAntiAim,"EnableAdvancedAtTarget", "Advanced At Target",0)
+local EnableMayYawAA=gui.Checkbox(GroupboxAntiAim,"EnableMayYawAA","MayYawAA",false)
+local EnableCustomMayYawAA=gui.Checkbox(GroupboxAntiAim,"EbableCustomMayYawAA","Custom MayYawAA",false)
+local EnableLagitAAonUse=gui.Checkbox(GroupboxAntiAim,"EnableLagitAAonUse","Legit AA on Use",false)
+local EnableAdvancedAtTarget=gui.Checkbox(GroupboxAntiAim,"EnableAdvancedAtTarget", "Advanced At Target",false)
 local ComboxAtTargetPriotity=gui.Combobox( GroupboxAntiAim, "ComboxAtTargetPriotity", "At Tagret Priority", "FOV", "Distance" )
 local GroupboxCustomMayYawAA=gui.Groupbox(MayYaw, "Custom MayYaw AA",  190, 268, 410, 0)
 local RotationSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "RotationSliderCustom", "Rotation Offset", 0, -58, 58 )
 local LBYSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "LBYSliderCustom", "LBY Offset", 0, -180, 180 )
 local BaseYawSliderCustom=gui.Slider(GroupboxCustomMayYawAA,"BaseYawSliderCustom","Base Yaw Offset",0,-180,180)
-local EnableLowDelta=gui.Checkbox(GroupboxCustomMayYawAA, "EnableLowDelta", "LowDelta",0)
+local EnableLowDelta=gui.Checkbox(GroupboxCustomMayYawAA, "EnableLowDelta", "LowDelta",false)
 local LowDeltaSliderValue=gui.Slider(GroupboxCustomMayYawAA, "LowDeltaSliderValue", "Low Delta Value", 0, 1, 60 )
-local EnbaleAutoSwitchDesync=gui.Checkbox(GroupboxCustomMayYawAA,"EnbaleAutoSwitchDesync","Auto Desync Switch",0)
+local EnbaleAutoSwitchDesync=gui.Checkbox(GroupboxCustomMayYawAA,"EnbaleAutoSwitchDesync","Auto Desync Switch",false)
 local ComboboxAutoDesyncInvertMode=gui.Combobox(GroupboxCustomMayYawAA, "ComboboxAutoDesyncInvertMode", "Desync Switch Mode","FOV","Distance","Local Player Velocity")
 local DesyncSwitchKey=gui.Keybox(GroupboxCustomMayYawAA,"DesyncSwitchKey","Desync Switch Key", 0 )
 local DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 160, 175, 0)
@@ -63,21 +89,204 @@ local Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 local DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: MrMaybe#2990")
 local LastUpdGroupboxNotLatUpd=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
 local LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 327, 175, 0)
-local LastUpddatetext=gui.Text(LastUpdGroupbox,"25.06.2021")
-local LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] Advanced At Target")
-local LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] DmgLog Color")
-local LastUpdlog3text=gui.Text(LastUpdGroupbox,"[+] Autobuy Grenade")
-local LastUpdlog4text=gui.Text(LastUpdGroupbox,"[+] Custom LowDelta Value")
-local LastUpdlog5text=gui.Text(LastUpdGroupbox,"[+] Pistol dmg Override")
-local LastUpdlog6text=gui.Text(LastUpdGroupbox,"[+] Dmg in Keybinds")
-local LastUpdlog7text=gui.Text(LastUpdGroupbox,"[+] Time in Watermark")
-local LastUpdlog8text=gui.Text(LastUpdGroupbox,"[=] Reworked MayYawAA")
+local LastUpddatetext=gui.Text(LastUpdGroupbox,"20.07.2021")
+local LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] General Tab Selection")
+local LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] Config Tab Selection")
+local LastUpdlog3text=gui.Text(LastUpdGroupbox,"[+] Configs system")
+local LastUpdlog4text=gui.Text(LastUpdGroupbox,"[+] NoScope HitChance")
+local LastUpdlog5text=gui.Text(LastUpdGroupbox,"[+] Double fire modes")
+local LastUpdlog6text=gui.Text(LastUpdGroupbox,"[+] Night mode")
+local LastUpdlog7text=gui.Text(LastUpdGroupbox,"[+] DT dmg HP/2")
+local LastUpdlog8text=gui.Text(LastUpdGroupbox,"[+] Keybinds styles")
+local LastUpdlog9text=gui.Text(LastUpdGroupbox,"[+] Watermark styles")
+local LastUpdlog10text=gui.Text(LastUpdGroupbox,"[=] Replaced clantag")
+local LastUpdlog11text=gui.Text(LastUpdGroupbox,"[=] Replaced JumpScout")
+local LastUpdlog12text=gui.Text(LastUpdGroupbox,"[=] Reworked keybinds drag")
 local UpdateText=gui.Text(LastUpdGroupboxNotLatUpd,"PLEASE RELOAD SCRIPT".."\n\n New version: "..LastVersion.."\n\n Your Version:"..Version)
 local WatermarkColor=gui.ColorPicker(EnableWatermark,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
-local KeybindsColor=gui.ColorPicker(EnableKeybinds,"Colorwatermark","Keybinds Color", 56,56, 165, 255 )
+local KeybindsColor=gui.ColorPicker(EnableKeybinds,"KeybindsColor","Keybinds Color", 56,56, 165, 255 )
 local MainLogColor=gui.ColorPicker(EnableHitLog,"MainLogColor","Main Log Color", 94,152,217, 255 )
 local PrefixLogColor=gui.ColorPicker(EnableHitLog,"PrefixLogColor","Prefix Log Color", 0,243,26, 255 )
 local DesyncInvertActiveColor=gui.ColorPicker(EnableDesyncInvertIndicator,"DesyncInvertActiveColor","Active Arrow Color", 0,255, 0, 255 )
+local maxticks=gui.Reference('Misc', 'General', 'Server', 'sv_maxusrcmdprocessticks')
+---------------------------
+local GuiElementsList={"mayyaw.Enableyaw","mayyaw.EnableCustomDoubleTapMode","mayyaw.EnableJumpScoutFix","mayyaw.EnableNoScopeHitChance","mayyaw.DoubleFireDamageHpdiv2",
+"mayyaw.ComboboxCustomDoubleFireMode","mayyaw.NoScopeHitChanceSlider","mayyaw.EnableMayYawAA","mayyaw.EbableCustomMayYawAA","mayyaw.EnableLagitAAonUse",
+"mayyaw.EnableAdvancedAtTarget","mayyaw.ComboxAtTargetPriotity","mayyaw.RotationSliderCustom","mayyaw.LBYSliderCustom","mayyaw.BaseYawSliderCustom",
+"mayyaw.EnableLowDelta","mayyaw.LowDeltaSliderValue","mayyaw.EnbaleAutoSwitchDesync","mayyaw.ComboboxAutoDesyncInvertMode","mayyaw.DesyncSwitchKey","mayyaw.EnableIndocators","mayyaw.EnableKeybinds","mayyaw.EnableDesyncInvertIndicator",
+"mayyaw.EnableWatermark","mayyaw.EnableNightMode","mayyaw.EnableAcpectRation","mayyaw.ComboboxKeybindsStyles","mayyaw.ComboboxWatermarkStyles","mayyaw.AspectRatioVal",
+"mayyaw.NightModeValSlider","mayyaw.EnableDmg","mayyaw.EnableEngineRadar","mayyaw.EnableAutoBuy","mayyaw.EnableHitLog","mayyaw.EnableClantag","mayyaw.awpdmgoverrideslider","mayyaw.autodmgoverrideslider","mayyaw.ssg08dmgoverrideslider",
+"mayyaw.heavypistoldmgoverrideslider","mayyaw.pistoldmgoverrideslider","mayyaw.ComboboxDMGmode","mayyaw.DMGKey","mayyaw.ComboxAutoBuyPrimaryWeapon","mayyaw.ComboxAutoBuySecondaryWeapon","mayyaw.ComboxAutoBuyArmor","mayyaw.EnableBuyGrenade",
+"mayyaw.EnableBuyMolotov","mayyaw.EnableBuySmoke"}
+local GuiElementsColorList={KeybindsColor,WatermarkColor,MainLogColor,PrefixLogColor,DesyncInvertActiveColor}
+local CreateConfigButton=gui.Button( GroupboxConfigsActions, "Create", function()
+	local ConfigName=EditBoxConfig:GetValue()
+	if ConfigName == nil or ConfigName == "" then
+		return
+	end
+	file.Write("MayYawConfigs/"..ConfigName..".dat","")
+	local ConfigList={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+            table.insert(ConfigList, file:sub(15,-5))
+        end
+    end)
+    ListboxConfig:SetOptions(unpack(ConfigList))
+	EditBoxConfig:SetValue("")
+end)
+local SaveConfigButton=gui.Button( GroupboxConfigsActions, "Save", function()
+	local kbr,kbg,kbb,kba=KeybindsColor:GetValue()
+	local wtr,wtg,wtb,wta=WatermarkColor:GetValue()
+	local mlr,mlg,mlb,mla=MainLogColor:GetValue()
+	local plr,plg,plb,pla=PrefixLogColor:GetValue()
+	local iir,iig,iib,iia=DesyncInvertActiveColor:GetValue()
+	local GuiElementsColorValueList={{kbr,kbg,kbb,kba},{wtr,wtg,wtb,wta},{mlr,mlg,mlb,mla},{plr,plg,plb,pla},{iir,iig,iib,iia}}
+	local ConfigList={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+            table.insert(ConfigList, file:sub(15,-5))
+        end
+    end)
+    local ConfigName=ConfigList[ListboxConfig:GetValue()+1]
+	file.Write("MayYawConfigs/"..ConfigName..".dat","")
+    fileConfig = file.Open("MayYawConfigs/"..ConfigName..".dat", "a");
+	for i = 1, table.maxn(GuiElementsList) do
+		local Value=gui.GetValue(GuiElementsList[i])
+		if Value == true then
+			Value=1
+		elseif Value == false then
+			Value=0
+		end
+		fileConfig:Write(tostring(Value..","))
+    end
+	for j=1, table.maxn(GuiElementsColorValueList) do
+		for g=1, table.maxn(GuiElementsColorValueList[j]) do
+			if j == table.maxn(GuiElementsColorValueList) and g==table.maxn(GuiElementsColorValueList[j]) then
+				fileConfig:Write(tostring(GuiElementsColorValueList[j][g]))
+			else
+				fileConfig:Write(tostring(GuiElementsColorValueList[j][g]..","))
+			end
+		end
+	end
+end) 
+local LoadConfigButton=gui.Button( GroupboxConfigsActions, "Load",function()
+	local ConfigList={}
+	local Data={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+            table.insert(ConfigList, file:sub(15,-5))
+        end
+    end)
+    local ConfigName=ConfigList[ListboxConfig:GetValue()+1]
+	local ConfigData=file.Read("MayYawConfigs/"..ConfigName..".dat","r")
+	for h in string.gmatch(ConfigData, '([^,]+)') do
+		table.insert(Data,h)
+	end
+	for i = 1, table.maxn(GuiElementsList) do
+		gui.SetValue(GuiElementsList[i],Data[i])
+    end
+	local Maxngui=table.maxn(GuiElementsList)
+	for i = 1, table.maxn(GuiElementsColorList) do
+		if i > 1 then 
+			Schet=Schet+1
+		else
+			Schet=0
+		end
+		local kl1=Data[Maxngui+1+Schet*4]
+		local kl2=Data[Maxngui+2+Schet*4]
+		local kl3=Data[Maxngui+3+Schet*4]
+		local a=Data[Maxngui+4+Schet*4]
+		GuiElementsColorList[i]:SetValue(kl1,kl2,kl3,a)
+    end
+end)
+local DeleteConfigButton=gui.Button( GroupboxConfigsActions, "Delete",function()
+	local ConfigList={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+            table.insert(ConfigList, file:sub(15,-5))
+        end
+    end)
+	file.Delete("MayYawConfigs/"..ConfigList[ListboxConfig:GetValue()+1]..".dat")
+	local ConfigList={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+            table.insert(ConfigList, file:sub(15,-5))
+        end
+    end)
+	ListboxConfig:SetOptions(unpack(ConfigList))
+end)
+local RefreshConfigsButton=gui.Button(GroupboxConfigsActions,"Refresh Configs",function()
+    local ConfigList={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+			if file:sub(0,14)=="MayYawConfigs/" then
+            	table.insert(ConfigList, file:sub(15,-5))
+			end
+        end
+    end)
+    ListboxConfig:SetOptions(unpack(ConfigList))
+end)
+local ImportCofigByCode=gui.Button(GroupboxCodesActions,"Import Config",function()
+	local Data={}
+	local Code=EditBoxCodes:GetValue()
+	for h in string.gmatch(Code, '([^,]+)') do
+		table.insert(Data,h)
+	end
+	for i = 1, table.maxn(GuiElementsList) do
+		gui.SetValue(GuiElementsList[i],Data[i])
+    end
+	local Maxngui=table.maxn(GuiElementsList)
+	for i = 1, table.maxn(GuiElementsColorList) do
+		if i > 1 then 
+			Schet=Schet+1
+		else
+			Schet=0
+		end
+		local kl1=Data[Maxngui+1+Schet*4]
+		local kl2=Data[Maxngui+2+Schet*4]
+		local kl3=Data[Maxngui+3+Schet*4]
+		local a=Data[Maxngui+4+Schet*4]
+		GuiElementsColorList[i]:SetValue(kl1,kl2,kl3,a)
+    end
+	EditBoxCodes:SetValue("")
+end)
+local ExportCofigByCode=gui.Button(GroupboxCodesActions,"Export Config(Console)",function()
+	local ExportConfig={}
+	local kbr,kbg,kbb,kba=KeybindsColor:GetValue()
+	local wtr,wtg,wtb,wta=WatermarkColor:GetValue()
+	local mlr,mlg,mlb,mla=MainLogColor:GetValue()
+	local plr,plg,plb,pla=PrefixLogColor:GetValue()
+	local iir,iig,iib,iia=DesyncInvertActiveColor:GetValue()
+	local GuiElementsColorValueList={{kbr,kbg,kbb,kba},{wtr,wtg,wtb,wta},{mlr,mlg,mlb,mla},{plr,plg,plb,pla},{iir,iig,iib,iia}}
+	local ConfigList={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+            table.insert(ConfigList, file:sub(15,-5))
+        end
+    end)
+    local ConfigName=ConfigList[ListboxConfig:GetValue()+1]
+    local fileConfig = file.Open("MayYawConfigs/"..ConfigName..".dat", "a");
+	for i = 1, table.maxn(GuiElementsList) do
+		local Value=gui.GetValue(GuiElementsList[i])
+		if Value == true then
+			Value=1
+		elseif Value == false then
+			Value=0
+		end
+		table.insert(ExportConfig,Value..",")
+    end
+	for j=1, table.maxn(GuiElementsColorValueList) do
+		for g=1, table.maxn(GuiElementsColorValueList[j]) do
+			if j == table.maxn(GuiElementsColorValueList) and g==table.maxn(GuiElementsColorValueList[j]) then
+				table.insert(ExportConfig,GuiElementsColorValueList[j][g])
+			else
+				table.insert(ExportConfig,GuiElementsColorValueList[j][g]..",")
+			end
+		end
+	end
+	print(table.concat(ExportConfig))
+end)
+---------------------------
 --[All ffi
 ffi.cdef [[
     void* GetProcAddress(void* hModule, const char* lpProcName);
@@ -99,19 +308,37 @@ local SetClantag= ffi.cast('int(__fastcall*)(const char*, const char*)', mem.Fin
 --]All ffi
 --Fuctions:
 	--Render GradientRect
-function GradientRect(x,y,hight,wight,r,g,b,a)
+function GradientRect(x,y,hight,wight,vert,r,g,b,a)
+	highty=hight
 	hight=a/hight
-	if hight > 0 then
-		for i=a, 0, -hight do
-			draw.Color(r,g,b,i)
-			draw.FilledRect(x,y,x+2,wight)
-			x=x+1
+	xx=x
+	if vert==false then
+		if hight > 0 then
+			for i=a, 0, -hight do
+				draw.Color(r,g,b,i)
+				draw.FilledRect(x,y,x+2,wight)
+				x=x+1
+			end
+		elseif hight < 0 then
+			for i=0, a, -hight do
+				draw.Color(r,g,b,i)
+				draw.FilledRect(x,y,x+2,wight)
+				x=x+1
+			end
 		end
-	elseif hight < 0 then
-		for i=0, a, -hight do
-			draw.Color(r,g,b,i)
-			draw.FilledRect(x,y,x+2,wight)
-			x=x+1
+	elseif vert==true then
+		if wight > 0 then
+			for i=a, 0, -wight do
+				draw.Color(r,g,b,i)
+				draw.FilledRect(xx,y,highty,y+2)
+				y=y+1
+			end
+		elseif wight < 0 then
+			for i=0, a, -wight do
+				draw.Color(r,g,b,i)
+				draw.FilledRect(xx,y,highty,y+2)
+				y=y+1
+			end
 		end
 	end
 end
@@ -177,7 +404,10 @@ end
 	end
 	--
 --Default Presets
+local DefScopeAutoValue=gui.GetValue("rbot.accuracy.weapon.asniper.hitchance")
+local DefDmgAutoValue=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
 local AspectRatioDefVal=0
+local NightModeDefVal=100
 local HitScore=1
 local DesyncSide="Left"
 max=100000000
@@ -193,10 +423,11 @@ autodefdmg=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
 ssgdefdmg=gui.GetValue("rbot.accuracy.weapon.scout.mindmg")
 heavydefdmg=gui.GetValue("rbot.accuracy.weapon.hpistol.mindmg")
 pistoldefdmg=gui.GetValue("rbot.accuracy.weapon.pistol.mindmg")
-local toggle
-=1
+local toggle=1
 local DesyncSwitchToggle=-1
+local AutoPeekToggle=-1
 local x1=100; local y1=100; local wight=230;local hight=200
+--local DtKeybinds=true;HsKeybinds=true;FdKeybinds=true;SlowKeybinds=true;DmgKeybinds=true;SpeedburstKeybinds=true;AutoPeekKeybinds=true
 --Version
 if LastVersion~=Version then
 	LastUpdGroupboxNotLatUpd:SetInvisible(false)
@@ -213,6 +444,23 @@ function GuiElements()
 		ComboboxMenuMode:SetDisabled(true)
 	end
 	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==0 then
+		if EnableNoScopeHitChance:GetValue() then
+			NoScopeHitChanceSlider:SetDisabled(false)
+		else
+			NoScopeHitChanceSlider:SetDisabled(true)
+		end
+		if EnableCustomDoubleTapMode:GetValue() then
+			ComboboxCustomDoubleFireMode:SetDisabled(false)
+		else
+			ComboboxCustomDoubleFireMode:SetDisabled(true)
+		end
+		GroupboxGeneral:SetInvisible(false)
+		GroupboxGeneralValue:SetInvisible(false)
+	else
+		GroupboxGeneral:SetInvisible(true)
+		GroupboxGeneralValue:SetInvisible(true)
+	end
+	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==1 then
 		if EnableMayYawAA:GetValue() then
 			if EnableCustomMayYawAA:GetValue() then
 				if EnableLowDelta:GetValue() then
@@ -226,9 +474,7 @@ function GuiElements()
 					BaseYawSliderCustom:SetDisabled(false)
 				end
 				if EnbaleAutoSwitchDesync:GetValue() then
-
 					ComboboxAutoDesyncInvertMode:SetInvisible(false)
-
 					DesyncSwitchKey:SetDisabled(true)
 				else
 					DesyncSwitchKey:SetDisabled(false)
@@ -256,12 +502,35 @@ function GuiElements()
 		GroupboxAntiAim:SetInvisible(true)
 		
 	end
-	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==1 then
+	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==2 then
 		GroupboxVisuals:SetInvisible(false)
+		GroupboxVisualsValue:SetInvisible(false)
+		if EnableNightMode:GetValue() then
+			NightModeValSlider:SetDisabled(false)
+		else
+			NightModeValSlider:SetDisabled(true)
+		end
+		if EnableAcpectRatio:GetValue() then
+			AspectRatioDefValSlider:SetDisabled(false)
+		else
+			AspectRatioDefValSlider:SetDisabled(true)
+		end
+		if EnableKeybinds:GetValue() then
+			ComboboxKeybindsStyles:SetDisabled(false)
+		else
+			ComboboxKeybindsStyles:SetDisabled(true)
+		end
+		if EnableWatermark:GetValue() then
+			ComboboxWatermarkStyles:SetDisabled(false)
+		else
+			ComboboxWatermarkStyles:SetDisabled(true)
+		end
+		
 	else
+		GroupboxVisualsValue:SetInvisible(true)
 		GroupboxVisuals:SetInvisible(true)
 	end
-	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==2 then
+	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==3 then
 		if EnableHitLog:GetValue() then
 			PrefixLogColor:SetInvisible(false)
 			MainLogColor:SetInvisible(false)
@@ -287,6 +556,15 @@ function GuiElements()
 		GroupboxMisc:SetInvisible(true)
 		GroupboxAutoBuy:SetInvisible(true)
 	end
+    if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==4 then
+       GroupboxConfigsActions:SetInvisible(false)
+       GroupboxConfigs:SetInvisible(false)
+	   GroupboxCodesActions:SetInvisible(false)
+    else
+       GroupboxConfigsActions:SetInvisible(true)
+       GroupboxConfigs:SetInvisible(true)
+	   GroupboxCodesActions:SetInvisible(true)
+    end
 	if EnableYaw:GetValue()==false then
 		GroupboxMain:SetInvisible(false)
 	else
@@ -357,10 +635,21 @@ function IsDtEnable()
 end
 --function Keybinds
 function Keybinds()
-	local xmouse,ymouse=input.GetMousePos()
+
+	xmouse,ymouse=input.GetMousePos()
+	if not input.IsButtonDown(1) then
+		xmousebefore,ymousebefore=input.GetMousePos()
+		drag=false
+	end
 	if xmouse>x1 and ymouse > y1 and xmouse < wight and ymouse < hight and input.IsButtonDown(1) then
-		x1=xmouse-60
-		y1=ymouse-50
+		if drag == false then
+			xcor=xmousebefore-x1
+			ycor=ymousebefore-y1
+		end
+		drag=true
+		xmouseafter,ymouseafter=input.GetMousePos()
+		x1=xmouseafter-xcor
+		y1=ymouseafter-ycor
 		wight=x1+130
 		hight=y1+100
 	end
@@ -373,7 +662,11 @@ function Keybinds()
 	local SpeedburstKey=gui.GetValue("misc.speedburst.key")
 	local EnableAutoPeek=gui.GetValue("rbot.accuracy.movement.autopeek")
 	local AutoPeekKey=gui.GetValue("rbot.accuracy.movement.autopeekkey")
-	draw.Color(1,1,1,120)
+	if ComboboxKeybindsStyles:GetValue()==0 then
+		draw.Color(1,1,1,120)
+	elseif ComboboxKeybindsStyles:GetValue()==1 then
+		draw.Color(1,1,1,90)
+	end
 	draw.FilledRect(x1,y1,wight,y1+20)
 	local rk,gk,bk,ak=KeybindsColor:GetValue()
 	draw.Color(rk,gk,bk,ak)
@@ -442,12 +735,27 @@ function Keybinds()
 		speedost=0
 	end
 	if AutoPeekKey~=0 and EnableAutoPeek==true then
-		if input.IsButtonDown(AutoPeekKey) then
-			draw.Color(1,1,1,255)
-			draw.Text(x1+6,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [holding]")
-			draw.Color(255,255,255,255)
-			draw.Text(x1+5,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [holding]")
+		if gui.GetValue("rbot.accuracy.movement.autopeektype")==0 then
+			AutoPeekToggle=-1
+			if input.IsButtonDown(AutoPeekKey) then
+				draw.Color(1,1,1,255)
+				draw.Text(x1+6,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [holding]")
+				draw.Color(255,255,255,255)
+				draw.Text(x1+5,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [holding]")
+			end
+		elseif gui.GetValue("rbot.accuracy.movement.autopeektype")==1 then
+			if input.IsButtonPressed(AutoPeekKey) then
+				AutoPeekToggle=AutoPeekToggle*-1
+			end
+			if AutoPeekToggle == 1 then
+				draw.Color(1,1,1,255)
+				draw.Text(x1+5,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [toggled]")
+				draw.Color(255,255,255,255)
+				draw.Text(x1+4,y1+27+dtots+hsots+fdost+slowost+dmgost+speedost,"Auto Peek   	   [toggled]")
+			end
 		end
+	else
+		AutoPeekToggle=-1
 	end
 end
 --function Indicators
@@ -458,13 +766,11 @@ function Indicators()
 	local VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
 	local VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
 	local LocalPlayerVelocity=math.sqrt(VelocityX^2 + VelocityY^2)
-	--draw.ShadowRect(WightScreen/2+30-LocalPlayerVelocity/35,HightScreen/2+35,WightScreen/2-30+LocalPlayerVelocity/35,HightScreen/2+38,-5)
-	GradientRect(WightScreen/2,HightScreen/2+35,30-LocalPlayerVelocity/35,HightScreen/2+38,255,255,255,255)
-	GradientRect(WightScreen/2-30+LocalPlayerVelocity/35,HightScreen/2+35,-30+LocalPlayerVelocity/35,HightScreen/2+38,255,255,255,255)
+	GradientRect(WightScreen/2,HightScreen/2+35,30-LocalPlayerVelocity/35,HightScreen/2+38,false,255,255,255,255)
+	GradientRect(WightScreen/2-30+LocalPlayerVelocity/35,HightScreen/2+35,-30+LocalPlayerVelocity/35,HightScreen/2+38,false,255,255,255,255)
 	draw.Color(255,255,255,255)
 	draw.SetFont(Font1) draw.Text(WightScreen/2-29,HightScreen/2+20,"MAY YAW")
 	local dtguion=IsDtEnable()
-	
 	if fdkey~=0 then
 		if dtguion and hsenable==false and input.IsButtonDown(fdkey)==false then
 			draw.Color(65, 180, 80,255)
@@ -598,16 +904,13 @@ function DesyncDelta()
 	if gui.GetValue("rbot.antiaim.condition.use") and input.IsButtonDown(69) then
 		delta=0
 	end
-	if delta==116 then
-		delta=0
-	end
-	return delta
+	return math.abs(delta)
 end
 --function Watermark
 function Watermark()
 	local WightScreen,HightScreen=draw.GetScreenSize()
 	local LocalPlayer=entities.GetLocalPlayer()
-	local UserName=client.GetConVar("name")
+	local UserName=cheat.GetUserName()
 	if LocalPlayer ~= nil then
 		pr=entities.GetPlayerResources()
 		delay = pr:GetPropInt("m_iPing", entities.GetLocalPlayer():GetIndex())
@@ -626,24 +929,31 @@ function Watermark()
 		serverdelay=delay
 	end
 	textot=16
-
-draw.SetFont(Font2)
+	draw.SetFont(Font2)
 	local text=("MayYaw | " ..UserName .. " | ".. delay .."ms | " ..serverip.." | "..os.date("%H"..":%M"..":%S"))
 	local textlen=draw.GetTextSize(text)
 	local rw,gw,bw,aw=WatermarkColor:GetValue()
-	draw.Color(1,1,1,120)
-	draw.FilledRect(WightScreen-textlen-2*textot,10,WightScreen-textot,32)
+	if ComboboxWatermarkStyles:GetValue()==0 then
+		draw.Color(1,1,1,120)
+		draw.FilledRect(WightScreen-textlen-2*textot,10,WightScreen-textot,32)
+		GradientRect((WightScreen-textlen-2*textot)+(textlen+textot)/2,10,(textot+textlen)/2,13,false,rw,gw,bw,aw)
+		GradientRect((WightScreen-textlen-2*textot),10,-(textot+textlen)/2,13,false,rw,gw,bw,aw)
+		GradientRect((WightScreen-textlen-2*textot)+(textlen+textot)/2,30,(textot+textlen)/2,33,false,rw,gw,bw,aw)
+		GradientRect((WightScreen-textlen-2*textot),30,-(textot+textlen)/2,33,false,rw,gw,bw,aw)
+	elseif ComboboxWatermarkStyles:GetValue()==1 then
+		draw.Color(1,1,1,70)
+		draw.FilledRect(WightScreen-textlen-2*textot,10,WightScreen-textot,32)
+		draw.Color(rw,gw,bw,aw)
+		draw.FilledRect((WightScreen-textlen-2*textot),10,(WightScreen-textlen-2*textot+textot+textlen),12)
+	end
 	draw.Color(255,255,255,255)
 	draw.Text(WightScreen-textlen-textot*1.5,16,text)
-	GradientRect((WightScreen-textlen-2*textot)+(textlen+textot)/2,10,(textot+textlen)/2,13,rw,gw,bw,aw)
-	GradientRect((WightScreen-textlen-2*textot),10,-(textot+textlen)/2,13,rw,gw,bw,aw)
-	GradientRect((WightScreen-textlen-2*textot)+(textlen+textot)/2,30,(textot+textlen)/2,33,rw,gw,bw,aw)
-	GradientRect((WightScreen-textlen-2*textot),30,-(textot+textlen)/2,33,rw,gw,bw,aw)
-
-
 
 	if LocalPlayer~=nil then
-		Desyncdelta= math.ceil(DesyncDelta())
+		
+		if math.ceil(DesyncDelta()) < 70 then
+			Desyncdelta=math.ceil(DesyncDelta())
+		end
 		if Desyncdelta >= 100 then
 			deltaO100=5
 		else
@@ -662,35 +972,51 @@ draw.SetFont(Font2)
 			FL=gui.GetValue("misc.fakelag.factor")
 		end
 		if LocalPlayer:IsAlive() then
-			draw.Color(1,1,1,120)
-			draw.FilledRect(WightScreen-76-DisFLValCor,38,WightScreen-textot,59)
-			draw.FilledRect(WightScreen-176-DisFLValCor,38,WightScreen-85+deltaO100-DisFLValCor,59)
 			local textfl=("FL : "..FL)
 			local textfllen=draw.GetTextSize(textfl)
-			draw.Color(rw,gw,bw,aw)
-			GradientRect((WightScreen-76-DisFLValCor)+(WightScreen-textot-WightScreen+76+DisFLValCor)/2-2,38,(WightScreen-textot-WightScreen+76+DisFLValCor)/2,41,rw,gw,bw,aw)
-			GradientRect(WightScreen-77-DisFLValCor,38,-(WightScreen-textot-WightScreen+76+DisFLValCor)/2,41,rw,gw,bw,aw)
-			GradientRect((WightScreen-176-DisFLValCor)+(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,38,(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,41,rw,gw,bw,aw)
-			GradientRect(WightScreen-176-DisFLValCor,38,-(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,41,rw,gw,bw,aw)
-
-			draw.Color(255,255,255,255)
-			draw.Text(WightScreen-68-DisFLValCor,45,textfl)
-			draw.SetFont(Font2)
-			draw.Text(WightScreen-154-DisFLValCor,45,"FAKE ("..Desyncdelta.."°)")
-			local x=WightScreen-165-DisFLValCor;local r=6;local y=50; local y1=0; local t=2
-			for i = 0, 360 / 100 * delta do
-				angle = i * math.pi / 180
-				draw.Color(210, 210, 210, 255)
-				ptx, pty = x + r * math.cos(angle), y + y1 + r * math.sin(angle)
-				ptx_, pty_ = x + (r-t) * math.cos(angle), y + y1 + (r-t) * math.sin(angle)
-				draw.Line(ptx, pty, ptx_, pty_)
+			if ComboboxWatermarkStyles:GetValue()==0 then
+				draw.Color(1,1,1,120)
+				draw.FilledRect(WightScreen-76-DisFLValCor,38,WightScreen-textot,59)
+				draw.FilledRect(WightScreen-176-DisFLValCor,38,WightScreen-85+deltaO100-DisFLValCor,59)
+				draw.Color(rw,gw,bw,aw)
+				GradientRect((WightScreen-76-DisFLValCor)+(WightScreen-textot-WightScreen+76+DisFLValCor)/2-2,38,(WightScreen-textot-WightScreen+76+DisFLValCor)/2,41,false,rw,gw,bw,aw)
+				GradientRect(WightScreen-77-DisFLValCor,38,-(WightScreen-textot-WightScreen+76+DisFLValCor)/2,41,false,rw,gw,bw,aw)
+				GradientRect((WightScreen-176-DisFLValCor)+(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,38,(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,41,false,rw,gw,bw,aw)
+				GradientRect(WightScreen-176-DisFLValCor,38,-(WightScreen-85+deltaO100-DisFLValCor-WightScreen+176+DisFLValCor)/2,41,false,rw,gw,bw,aw)
+			elseif ComboboxWatermarkStyles:GetValue()==1 then
+				draw.Color(1,1,1,90)
+				draw.FilledRect(WightScreen-69-DisFLValCor,38,WightScreen-textot,59)
+				draw.FilledRect(WightScreen-155-DisFLValCor,38,WightScreen-80+deltaO100-DisFLValCor,59)
+				GradientRect(WightScreen-157-DisFLValCor,37,WightScreen-155-DisFLValCor,-25,true,rw,gw,bw,aw)
+				GradientRect(WightScreen-157-DisFLValCor,48,WightScreen-155-DisFLValCor,25,true,rw,gw,bw,aw)
+				GradientRect((WightScreen-71-DisFLValCor)+(WightScreen-textot-WightScreen+71+DisFLValCor)/2-2,58,(WightScreen-textot-WightScreen+71+DisFLValCor)/2,59,false,rw,gw,bw,aw)
+				GradientRect(WightScreen-71-DisFLValCor,58,-(WightScreen-textot-WightScreen+71+DisFLValCor)/2,59,false,rw,gw,bw,aw)
 			end
-			for i = 360 / 100 * delta + 1, 360 do
-				angle = i * math.pi / 180
-				draw.Color(45, 45, 45, 45)
-				ptx, pty = x + r * math.cos(angle), y + y1 + r * math.sin(angle)
-				ptx_, pty_ = x + (r-t) * math.cos(angle), y + y1 + (r-t) * math.sin(angle)
-				draw.Line(ptx, pty, ptx_, pty_)
+			if ComboboxWatermarkStyles:GetValue()==0 then
+				draw.Color(255,255,255,255)
+				draw.Text(WightScreen-68-DisFLValCor,45,textfl)
+				draw.SetFont(Font2)
+				draw.Text(WightScreen-154-DisFLValCor,45,"FAKE ("..Desyncdelta.."°)")
+				local x=WightScreen-165-DisFLValCor;local r=6;local y=50; local y1=0; local t=2
+				for i = 0, 360 / 100 * delta do
+					angle = i * math.pi / 180
+					draw.Color(210, 210, 210, 255)
+					ptx, pty = x + r * math.cos(angle), y + y1 + r * math.sin(angle)
+					ptx_, pty_ = x + (r-t) * math.cos(angle), y + y1 + (r-t) * math.sin(angle)
+					draw.Line(ptx, pty, ptx_, pty_)
+				end
+				for i = 360 / 100 * delta + 1, 360 do
+					angle = i * math.pi / 180
+					draw.Color(45, 45, 45, 45)
+					ptx, pty = x + r * math.cos(angle), y + y1 + r * math.sin(angle)
+					ptx_, pty_ = x + (r-t) * math.cos(angle), y + y1 + (r-t) * math.sin(angle)
+					draw.Line(ptx, pty, ptx_, pty_)
+				end
+			elseif ComboboxWatermarkStyles:GetValue()==1 then
+				draw.Color(255,255,255,255)
+				draw.Text(WightScreen-63-DisFLValCor,43,textfl)
+				draw.SetFont(Font2)
+				draw.Text(WightScreen-149-DisFLValCor,43,"FAKE ("..Desyncdelta.."°)")
 			end
 		end
 	end
@@ -951,6 +1277,7 @@ function Main()
 	end
 	if EnableYaw:GetValue() and LocalPlayer~=nil then
 		AspectRatio()
+		NightMode()
 	end
 	if EnableYaw:GetValue() and EnableAdvancedAtTarget:GetValue() and LocalPlayer~=nil and LocalPlayer:IsAlive() then
 		if EnableLagitAAonUse:GetValue()==false then
@@ -961,7 +1288,15 @@ function Main()
 			gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1);
 		end
 	end
-
+	if EnableYaw:GetValue() then
+		DoubleFireMode()
+	end
+	if EnableYaw:GetValue() and EnableNoScopeHitChance:GetValue() and LocalPlayer~=nil then
+		NoScopeHitChance()
+	end
+	if EnableYaw:GetValue() then
+		DtDmgHpDiv2()
+	end
 end
 function AutoBuy(event)
 	if event:GetName() == "round_prestart" then
@@ -1167,8 +1502,8 @@ function DamageLog(event)
 				else
 					Exploits=0
 				end
-				local maxticks=gui.Reference('Misc', 'General', 'Server', 'sv_maxusrcmdprocessticks'):GetValue()
-				local simtime = globals.TickCount() % maxticks 
+				local maxticksValue=gui.Reference('Misc', 'General', 'Server', 'sv_maxusrcmdprocessticks'):GetValue()
+				local simtime = globals.TickCount() % maxticksValue 
 				local log=("["..HitScore.."] ".."Hit "..user:GetName().." in the "..HitGroup(event:GetInt('hitgroup')).." for "..damageDone.." damage ("..remainingHealth.." remaining)".." safty="..safty.." ("..simtime..":"..Exploits..")".."\n")
 				HitScore=HitScore+1
 				local r1,g1,b1,a1=MainLogColor:GetValue()
@@ -1181,10 +1516,24 @@ function DamageLog(event)
 end
 function AspectRatio()
 	local NewAsp=AspectRatioDefValSlider:GetValue()
+	if not EnableAcpectRatio:GetValue() then
+		if SetAspectRatioZero==false then
+			client.SetConVar( "r_aspectratio", 0, true)
+			SetAspectRatioZero=true
+		end
+		SetAspectRatioIfAgain=false
+		return
+	else
+		if SetAspectRatioIfAgain==false then
+			client.SetConVar( "r_aspectratio",AspectRatioDefValSlider:GetValue()/100, true)
+			SetAspectRatioIfAgain=true
+		end
+	end
 	if NewAsp~=AspectRatioDefVal then
 		client.SetConVar( "r_aspectratio", NewAsp/100, true)
 		AspectRatioDefVal=NewAsp
 	end
+	SetAspectRatioZero=false
 end
 function AdvancedAtTarget()
 	local WightScreen,HightScreen=draw.GetScreenSize()
@@ -1259,6 +1608,130 @@ function AdvancedAtTarget()
 		end
 	end
 end
+function NightMode()
+	local Night = entities.FindByClass("CEnvTonemapController")[1];
+	if EnableNightMode:GetValue() then
+		if NightModeAgain==false then
+			Night:SetProp("m_bUseCustomAutoExposureMin", 1);
+			Night:SetProp("m_bUseCustomAutoExposureMax", 1);
+			Night:SetProp("m_flCustomAutoExposureMin", NightModeValSlider:GetValue()/100);
+			Night:SetProp("m_flCustomAutoExposureMax", NightModeValSlider:GetValue()/100);
+			NightModeAgain=true
+		end
+		local NewNightModeVal=NightModeValSlider:GetValue()
+		if NewNightModeVal~=NightModeDefVal then
+			NightModeDefVal=NewNightModeVal
+			Night:SetProp("m_bUseCustomAutoExposureMin", 1);
+			Night:SetProp("m_bUseCustomAutoExposureMax", 1);
+			Night:SetProp("m_flCustomAutoExposureMin", NewNightModeVal/100);
+			Night:SetProp("m_flCustomAutoExposureMax", NewNightModeVal/100);
+		end
+	else
+		NightModeAgain=false
+		if Night:GetProp("m_bUseCustomAutoExposureMin") ~=0  and Night:GetProp("m_bUseCustomAutoExposureMax")~=0 then 
+			Night:SetProp("m_bUseCustomAutoExposureMin", 0);
+			Night:SetProp("m_bUseCustomAutoExposureMax", 0);
+		end
+	end
+end
+function NoScopeHitChance()
+	local LocalPlayer=entities.GetLocalPlayer()
+	local IsScoped=LocalPlayer:GetPropBool("m_bIsScoped")
+	local SliderValue=gui.GetValue("mayyaw.NoScopeHitChanceSlider")
+	local gun=GetActiveGun()
+	if gun ~= "asniper" then
+		return
+	end
+	if Aimwaremenu:IsActive() then
+		if gui.GetValue("rbot.accuracy.weapon.asniper.hitchance")==SliderValue then
+			gui.SetValue("rbot.accuracy.weapon.asniper.hitchance",DefScopeAutoValue)
+		end
+		DefScopeAutoValue=gui.GetValue("rbot.accuracy.weapon.asniper.hitchance")
+		return
+	end
+	if not IsScoped then
+		if SliderValue ~= gui.GetValue("rbot.accuracy.weapon.asniper.hitchance") then
+			gui.SetValue("rbot.accuracy.weapon.asniper.hitchance",SliderValue )
+		end
+	else
+		gui.SetValue("rbot.accuracy.weapon.asniper.hitchance",DefScopeAutoValue)
+	end
+end
+function DoubleFireMode()
+	local maxserverticks = client.GetConVar('sv_maxusrcmdprocessticks')
+	if not EnableCustomDoubleTapMode:GetValue() then
+		if SetDefTicks==false then
+			maxticks:SetValue(maxserverticks)
+			SetDefTicks=true
+		end
+		return
+	end
+	local LocalPlayer=entities.GetLocalPlayer()
+	local PlayerResources=entities.GetPlayerResources()
+	if EnableCustomDoubleTapMode:GetValue() then
+		if ComboboxCustomDoubleFireMode:GetValue() == 0 and LocalPlayer~=nil then
+			local ping= PlayerResources:GetPropInt("m_iPing", entities.GetLocalPlayer():GetIndex())
+			if ping <=5 then
+				AdaptiveValue=maxserverticks+1
+			elseif ping <=20 then
+				AdaptiveValue=maxserverticks
+			elseif ping <=50 then
+				AdaptiveValue=maxserverticks-1
+			elseif ping <=70 then
+				AdaptiveValue=maxserverticks-2
+			elseif ping > 70 then
+				AdaptiveValue=maxserverticks-3
+			end
+			maxticks:SetValue(AdaptiveValue)
+		end
+		if ComboboxCustomDoubleFireMode:GetValue() == 1 then
+			maxticks:SetValue(19)
+		end
+		if ComboboxCustomDoubleFireMode:GetValue() == 2 then
+			maxticks:SetValue(16)
+		end
+		if ComboboxCustomDoubleFireMode:GetValue() == 3 then
+			maxticks:SetValue(14)
+		end
+	end
+	SetDefTicks=false
+end
+function DtDmgHpDiv2()
+	LocalPlayer=entities.GetLocalPlayer()
+	if not EnableDoubleFireDamageHpdiv2:GetValue() or LocalPlayer==nil or not LocalPlayer:IsAlive() or GetActiveGun()~="asniper" or IsDtEnable()==false  then
+		if SetDefDmg==false then
+			gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",DefDmgAutoValue)
+			SetDefDmg=true
+		end
+		return
+	end
+	if RagebotTarget==nil then 
+		return
+	end
+	local EnemyHp=RagebotTarget:GetHealth()
+	local Dmg=math.ceil(EnemyHp/2)
+	if Aimwaremenu:IsActive() then
+		if SetDmgIfMenuOpen==false then
+			gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",DefDmgAutoValue)
+			SetDmgIfMenuOpen=true
+		end
+		DefDmgAutoValue=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
+		return
+	end
+	if Dmg ~= 0 then
+		gui.SetValue("rbot.accuracy.weapon.asniper.mindmg",Dmg)
+	end
+	SetDmgIfMenuOpen=false
+	SetDefDmg=false
+end
+callbacks.Register("AimbotTarget", function(enemy)
+	if enemy:GetIndex() ~=nil then
+		if entities.GetByIndex(enemy:GetIndex()):IsAlive() then
+			RagebotTarget=entities.GetByIndex(enemy:GetIndex())
+		end
+	end
+end)
+
 client.AllowListener("round_prestart");
 callbacks.Register("CreateMove",JumpScoutFix)
 callbacks.Register("Draw",Main)
