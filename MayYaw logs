@@ -77,3 +77,18 @@ Version 1.5
 [+]Added Dmg Value in Keybinds
 [+]Added Time in Watermark
 [=]Reworked MayYawAA
+-------------------------------------------------------
+Version 1.6
+21.07.2021
+[+] Added General Tab Selection
+[+] Added Config Tab Selection
+[+] Added Configs system
+[+] Added NoScope HitChance
+[+] Added Double fire modes
+[+] Added Night mode
+[+] Added DT dmg HP/2
+[+] Added Keybinds styles
+[+] Added Watermark styles
+[=] Replaced clantag
+[=] Replaced JumpScout
+[=] Reworked keybinds drag
