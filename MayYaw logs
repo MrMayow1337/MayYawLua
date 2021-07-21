@@ -84,11 +84,11 @@ Version 1.6
 [+] Added Config Tab Selection
 [+] Added Configs system
 [+] Added NoScope HitChance
-[+] Added Double fire modes
+[+] Added Double fire modes (Adaptive, Faster(Inaccuracy), Standart, Slow)
 [+] Added Night mode
 [+] Added DT dmg HP/2
-[+] Added Keybinds styles
-[+] Added Watermark styles
+[+] Added Keybinds styles (Default, Sense)
+[+] Added Watermark styles (Default, Sense)
 [=] Replaced clantag
 [=] Replaced JumpScout
 [=] Reworked keybinds drag
