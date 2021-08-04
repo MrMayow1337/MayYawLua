@@ -1,18 +1,170 @@
 local ScriptName=GetScriptName()
-local Version="1.6";
+local Version="1.7";
 local LastVersion= string.gsub(http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/Version.txt"), "\n", "")
-local LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/MayYaw%20.lua")
 if LastVersion~=Version then
-file.Delete(ScriptName)
+	local LastScript=http.Get("https://raw.githubusercontent.com/MrMayow1337/MayYawLua/main/MayYaw%20.lua")
+	file.Delete(ScriptName)
 	file.Open(ScriptName,"w")
 	file.Write(ScriptName,LastScript)
 end
-ConfigList={}
-file.Enumerate(function(file)
-    if string.match(file, "%.dat") then
-        table.insert(ConfigList, file:sub(15,-5))
+------------------[All ffi:
+ffi.cdef [[
+    void* GetProcAddress(void* hModule, const char* lpProcName);
+    void* GetModuleHandleA(const char* lpModuleName);
+
+    typedef struct {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        uint8_t a;
+    } color_struct_t;
+
+    typedef void (*console_color_print)(const color_struct_t&, const char*, ...);
+
+    typedef void* (__thiscall* get_client_entity_t)(void*, int);
+]]
+local ffi_log = ffi.cast("console_color_print", ffi.C.GetProcAddress(ffi.C.GetModuleHandleA("tier0.dll"), "?ConColorMsg@@YAXABVColor@@PBDZZ"))
+local SetClantag= ffi.cast('int(__fastcall*)(const char*, const char*)', mem.FindPattern('engine.dll', '53 56 57 8B DA 8B F9 FF 15'))
+------------------All ffi]
+-----------------[Functions:
+--Encoding,Decoding function
+local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+local function enc(data) --Encoding
+    return ((data:gsub('.', function(x) 
+        local r,b='',x:byte()
+        for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
+        return r;
+    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if (#x < 6) then return '' end
+        local c=0
+        for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
+        return b:sub(c+1,c+1)
+    end)..({ '', '==', '=' })[#data%3+1])
+end
+local function dec(data) --Decoding
+    data = string.gsub(data, '[^'..b..'=]', '')
+    return (data:gsub('.', function(x)
+        if (x == '=') then return '' end
+        local r,f='',(b:find(x)-1)
+        for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end
+        return r;
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if (#x ~= 8) then return '' end
+        local c=0
+        for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
+            return string.char(c)
+    end))
+end
+local function CustomGui(guiObject,x,y,wight,hight) --Custom Gui function
+	if guiObject==nil then return end
+	if x then guiObject:SetPosX(x) end
+	if y then guiObject:SetPosY(y) end 
+	if wight then guiObject:SetWidth(wight) end
+	if hight then guiObject:SetHeight(hight) end
+end
+local function GradientRect(x,y,hight,wight,vert,r,g,b,a) --Render GradientRect function
+    highty=hight
+    hight=a/hight
+    xx=x
+    if vert==false then
+        if hight > 0 then
+            for i=a, 0, -hight do
+                draw.Color(r,g,b,i)
+                draw.FilledRect(x,y,x+2,wight)
+                x=x+1
+            end
+        elseif hight < 0 then
+            for i=0, a, -hight do
+                draw.Color(r,g,b,i)
+                draw.FilledRect(x,y,x+2,wight)
+                x=x+1
+            end
+        end
+     elseif vert==true then
+        if wight > 0 then
+             for i=a, 0, -wight do
+                 draw.Color(r,g,b,i)
+                 draw.FilledRect(xx,y,highty,y+2)
+                y=y+1
+             end
+        elseif wight < 0 then
+            for i=0, a, -wight do
+                draw.Color(r,g,b,i)
+                draw.FilledRect(xx,y,highty,y+2)
+                y=y+1
+            end
+        end
     end
-end)
+end
+function client.color_log(r, g, b, msg, ...) --Color Log function
+    for k, v in pairs({...}) do
+        msg = tostring(msg .. v)
+    end
+    local clr = ffi.new("color_struct_t")
+       clr.r, clr.g, clr.b, clr.a = r, g, b, 255
+    ffi_log(clr, msg)
+end
+local function HitGroup(HitGroup) --HitGroup handler function
+    if HitGroup == nil then
+        return;
+    elseif HitGroup == 0 then
+        return "body";
+    elseif HitGroup == 1 then
+        return "head";
+    elseif HitGroup == 2 then
+        return "chest";
+    elseif HitGroup== 3 then
+        return "stomach";
+    elseif HitGroup == 4 then
+        return "left arm";
+    elseif HitGroup == 5 then
+        return "right arm";
+    elseif HitGroup == 6 then
+        return "left leg";
+    elseif HitGroupP == 7 then
+        return "right leg";
+    elseif HitGroup == 10 then
+        return "body";
+    end
+end
+local function GetActiveGun() --Active gun handler function
+    local lp=entities.GetLocalPlayer()
+    local lpaw=lp:GetWeaponID()
+    if lpaw==2 or lpaw==3 or lpaw==4 or lpaw==30 or lpaw==32 or lpaw==36 or lpaw==61 or lpaw==63 then
+        wclass="pistol"
+    elseif lpaw==9 then
+        wclass="sniper"
+    elseif lpaw==40 then
+        wclass="scout"
+    elseif lpaw==1 then
+        wclass="hpistol"
+    elseif lpaw==17 or lpaw== 19 or lpaw== 23 or lpaw== 24 or lpaw== 26 or lpaw== 33 or lpaw== 34 then
+        wclass="smg"
+    elseif lpaw==7 or lpaw==8 or lpaw== 10 or lpaw== 13 or lpaw== 16 or lpaw== 39 or lpaw== 61 then
+        wclass="rifle"
+    elseif lpaw== 25 or lpaw== 27 or lpaw== 29 or lpaw== 35 then
+        wclass="shotgun"
+    elseif lpaw == 38 or lpaw== 11 then
+        wclass="asniper"
+    elseif lpaw == 28 or lpaw== 14 then
+        wclass="lmg"
+    else
+        wclass="other"
+    end
+    return wclass
+end
+function GetLuaCfg() -- Get all lua cfg
+    ConfigList={}
+    file.Enumerate(function(file)
+        if string.match(file, "%.dat") then
+            table.insert(ConfigList, file:sub(15,-5))
+        end
+    end)
+    table.insert(ConfigList, "MayYaw(Default)")
+    return ConfigList
+end
+------------------Functions]
+GetLuaCfg()
 local Aimwaremenu=gui.Reference("MENU")
 local MayYaw = gui.Tab(gui.Reference("Settings"), "mayyaw", "MayYaw");
 local MainYaw=gui.Groupbox(MayYaw, "Enable MayYaw", 5, 10, 175, 0)
@@ -23,11 +175,11 @@ local GroupboxAntiAim=gui.Groupbox(MayYaw, "MayYaw Anti-Aim", 190, 10, 410, 0)
 local GroupboxVisuals=gui.Groupbox(MayYaw, "MayYaw Visuals", 190, 10, 200, 0)
 local GroupboxVisualsValue=gui.Groupbox(MayYaw, "MayYaw Visuals Value", 400, 10, 225, 0)
 local GroupboxConfigs=gui.Groupbox(MayYaw, "MayYaw Configs", 190, 10, 230, 0)
-local GroupboxCodesActions=gui.Groupbox(MayYaw, "MayYaw Actions with Codes", 190, 280, 230, 0)
+local GroupboxCodesActions=gui.Groupbox(MayYaw, "MayYaw Actions with Codes", 425, 240, 200, 0)
 local EditBoxCodes=gui.Editbox(GroupboxCodesActions, "EditBoxCodes", "Config Code" )
 local GroupboxConfigsActions=gui.Groupbox(MayYaw, "MayYaw Actions with Configs", 425, 10, 200, 0)
 local EditBoxConfig=gui.Editbox( GroupboxConfigsActions, "EditBoxConfig", "Config Name" )
-local ListboxConfig=gui.Listbox( GroupboxConfigs, "ListboxConfig", 200, unpack(ConfigList))
+local ListboxConfig=gui.Listbox( GroupboxConfigs, "ListboxConfig", 310, unpack(ConfigList))
 local EnableIndicators=gui.Checkbox(GroupboxVisuals, "EnableIndocators", "Indicators", false)
 local EnableKeybinds=gui.Checkbox(GroupboxVisuals, "EnableKeybinds", "Keybinds", false)
 local EnableDesyncInvertIndicator=gui.Checkbox(GroupboxVisuals, "EnableDesyncInvertIndicator", "Desync Indicator", false)
@@ -46,6 +198,7 @@ local EnableNoScopeHitChance=gui.Checkbox(GroupboxGeneral,"EnableNoScopeHitChanc
 local EnableDoubleFireDamageHpdiv2=gui.Checkbox(GroupboxGeneral,"DoubleFireDamageHpdiv2","DT dmg Enemy HP/2",false)
 local ComboboxCustomDoubleFireMode=gui.Combobox(GroupboxGeneralValue,"ComboboxCustomDoubleFireMode","Double fire mode","Adaptive","Faster(Inaccuracy)","Standart","Slow")
 local NoScopeHitChanceSlider=gui.Slider(GroupboxGeneralValue,"NoScopeHitChanceSlider", "NoScope Hit Chance Value", 0, 0, 100)
+local EnableIdealTick=gui.Checkbox(GroupboxGeneral, "EnableIdealTick", "IdealTick", false )
 local GroupboxMisc=gui.Groupbox(MayYaw, "MayYaw Misc", 190, 10, 230, 0)
 local GroupboxAutoBuy=gui.Groupbox(MayYaw, "AutoBuy", 190, 250, 230, 0)
 local ComboboxAutoBuyPrimaryWeapon=gui.Combobox(GroupboxAutoBuy, "ComboxAutoBuyPrimaryWeapon", "Primary Weapon","None","Auto","Ssg08","AWP")
@@ -68,20 +221,50 @@ local HeavyPistolDMGOverrideSlider=gui.Slider(GroupboxDMG, "heavypistoldmgoverri
 local PistolDMGOverrideSlider=gui.Slider(GroupboxDMG, "pistoldmgoverrideslider", "Pistol Override Min Damage", 0, 1, 130 )
 local ComboboxDMGmode=gui.Combobox(GroupboxDMG, "ComboboxDMGmode", "Mode","Hold","Toggle")
 local DMGKey=gui.Keybox(GroupboxDMG,"DMGKey","Key", 0 )
-local EnableMayYawAA=gui.Checkbox(GroupboxAntiAim,"EnableMayYawAA","MayYawAA",false)
-local EnableCustomMayYawAA=gui.Checkbox(GroupboxAntiAim,"EbableCustomMayYawAA","Custom MayYawAA",false)
+local EnableMayYawAA=gui.Checkbox(GroupboxAntiAim,"EbableMayYawAA","MayYawAA",false)
 local EnableLagitAAonUse=gui.Checkbox(GroupboxAntiAim,"EnableLagitAAonUse","Legit AA on Use",false)
-local EnableAdvancedAtTarget=gui.Checkbox(GroupboxAntiAim,"EnableAdvancedAtTarget", "Advanced At Target",false)
-local ComboxAtTargetPriotity=gui.Combobox( GroupboxAntiAim, "ComboxAtTargetPriotity", "At Tagret Priority", "FOV", "Distance" )
-local GroupboxCustomMayYawAA=gui.Groupbox(MayYaw, "Custom MayYaw AA",  190, 268, 410, 0)
-local RotationSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "RotationSliderCustom", "Rotation Offset", 0, -58, 58 )
-local LBYSliderCustom=gui.Slider(GroupboxCustomMayYawAA, "LBYSliderCustom", "LBY Offset", 0, -180, 180 )
-local BaseYawSliderCustom=gui.Slider(GroupboxCustomMayYawAA,"BaseYawSliderCustom","Base Yaw Offset",0,-180,180)
-local EnableLowDelta=gui.Checkbox(GroupboxCustomMayYawAA, "EnableLowDelta", "LowDelta",false)
-local LowDeltaSliderValue=gui.Slider(GroupboxCustomMayYawAA, "LowDeltaSliderValue", "Low Delta Value", 0, 1, 60 )
-local EnbaleAutoSwitchDesync=gui.Checkbox(GroupboxCustomMayYawAA,"EnbaleAutoSwitchDesync","Auto Desync Switch",false)
-local ComboboxAutoDesyncInvertMode=gui.Combobox(GroupboxCustomMayYawAA, "ComboboxAutoDesyncInvertMode", "Desync Switch Mode","FOV","Distance","Local Player Velocity")
-local DesyncSwitchKey=gui.Keybox(GroupboxCustomMayYawAA,"DesyncSwitchKey","Desync Switch Key", 0 )
+local GroupboxEnableMayYawAA=gui.Groupbox(MayYaw, "MayYaw AA",  190, 135, 410, 0)
+local ComboboxAAPlayerState=gui.Combobox( GroupboxEnableMayYawAA, "ComboboxAAPlayerState", "Player State","Global","Standing","SlowMotion","Moving","Air")
+local ComboxAtTargetPriotity=gui.Combobox( GroupboxEnableMayYawAA, "ComboxAtTargetPriotity", "At Tagret Priority", "FOV", "Distance" )
+local EnableStandingAA=gui.Checkbox( GroupboxEnableMayYawAA, "EnableStandingAA", "Enable Standing Anti-Aim",false)
+local EnableSlowMotionAA=gui.Checkbox( GroupboxEnableMayYawAA, "EnableSlowMotionAA", "Enable SlowMotion Anti-Aim",false)
+local EnableMovingAA=gui.Checkbox( GroupboxEnableMayYawAA, "EnableMovingAA", "Enable Moving Anti-Aim",false)
+local EnableAirAA=gui.Checkbox( GroupboxEnableMayYawAA, "EnableAirAA", "Enable Air Anti-Aim",false)
+local GlobalRotationSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "GlobalRotationSliderCustom", "Rotation Offset", 0, -58, 58 )
+local GlobalLBYSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "GlobalLBYSliderCustom", "LBY Offset", 0, -180, 180 )
+local GlobalBaseYawSliderCustom=gui.Slider(GroupboxEnableMayYawAA,"GlobalBaseYawSliderCustom","Base Yaw Offset",0,-180,180)
+local StandingRotationSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "StandingRotationSliderCustom", "Rotation Offset", 0, -58, 58 )
+local StandingLBYSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "StandingLBYSliderCustom", "LBY Offset", 0, -180, 180 )
+local StandingBaseYawSliderCustom=gui.Slider(GroupboxEnableMayYawAA,"StandingBaseYawSliderCustom","Base Yaw Offset",0,-180,180)
+local SlowMotionRotationSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "SlowMotionRotationSliderCustom", "Rotation Offset", 0, -58, 58 )
+local SlowMotionLBYSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "SlowMotionLBYSliderCustom", "LBY Offset", 0, -180, 180 )
+local SlowMotionBaseYawSliderCustom=gui.Slider(GroupboxEnableMayYawAA,"SlowMotionBaseYawSliderCustom","Base Yaw Offset",0,-180,180)
+local MovingRotationSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "MovingRotationSliderCustom", "Rotation Offset", 0, -58, 58 )
+local MovingLBYSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "MovingLBYSliderCustom", "LBY Offset", 0, -180, 180 )
+local MovingBaseYawSliderCustom=gui.Slider(GroupboxEnableMayYawAA,"MovingBaseYawSliderCustom","Base Yaw Offset",0,-180,180)
+local AirRotationSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "AirRotationSliderCustom", "Rotation Offset", 0, -58, 58 )
+local AirLBYSliderCustom=gui.Slider(GroupboxEnableMayYawAA, "AirLBYSliderCustom", "LBY Offset", 0, -180, 180 )
+local AirBaseYawSliderCustom=gui.Slider(GroupboxEnableMayYawAA,"AirBaseYawSliderCustom","Base Yaw Offset",0,-180,180)
+local EnableJitterGlobal=gui.Checkbox( GroupboxEnableMayYawAA, "EnableJitterGlobal", "Jitter Global", false )
+local EnableJitterStanding=gui.Checkbox( GroupboxEnableMayYawAA, "EnableJitterStanding", "Jitter Standing", false )
+local EnableJitterSlowMotion=gui.Checkbox( GroupboxEnableMayYawAA, "EnableJitterSlowMotion", "Jitter SlowMotion", false )
+local EnableJitterMoving=gui.Checkbox( GroupboxEnableMayYawAA, "EnableJitterMoving", "Jitter Moving", false )
+local EnableJitterAir=gui.Checkbox( GroupboxEnableMayYawAA, "EnableJitterAir", "Jitter Air", false )
+local SliderJitterOffsetGlobal=gui.Slider( GroupboxEnableMayYawAA, "SliderJitterOffsetGlobal", "Jitter Global Offset",0, 0, 180 )
+local SliderJitterOffsetStanding=gui.Slider( GroupboxEnableMayYawAA, "SliderJitterOffsetStanding", "Jitter Standing Offset",0, 0, 180 )
+local SliderJitterOffsetSlowMotion=gui.Slider( GroupboxEnableMayYawAA, "SliderJitterOffsetSlowMotion", "Jitter SlowMotion Offset",0, 0, 180 )
+local SliderJitterOffsetMoving=gui.Slider( GroupboxEnableMayYawAA, "SliderJitterOffsetMoving", "Jitter Moving Offset",0, 0, 180 )
+local SliderJitterOffsetAir=gui.Slider( GroupboxEnableMayYawAA, "SliderJitterOffsetAir", "Jitter Air Offset",0, 0, 180 )
+local ComobboxAutoDirectionModeGlobal=gui.Combobox( GroupboxEnableMayYawAA, "ComobboxAutoDirectionModeGlobal", "Auto Direction Global mode", "Advanced At Target","Default At Target")
+local ComobboxAutoDirectionModeStanding=gui.Combobox( GroupboxEnableMayYawAA, "ComobboxAutoDirectionModeStanding", "Auto Direction Standing mode", "Advanced At Target","Default At Target")
+local ComobboxAutoDirectionModeSlowMotion=gui.Combobox( GroupboxEnableMayYawAA, "ComobboxAutoDirectionModeSlowMotion", "Auto Direction SlowMotion mode", "Advanced At Target","Default At Target")
+local ComobboxAutoDirectionModeMoving=gui.Combobox( GroupboxEnableMayYawAA, "ComobboxAutoDirectionModeMoving", "Auto Direction Moving mode", "Advanced At Target","Default At Target")
+local ComobboxAutoDirectionModeAir=gui.Combobox( GroupboxEnableMayYawAA, "ComobboxAutoDirectionModeAir", "Auto Direction Air mode", "Advanced At Target","Default At Target")
+local EnableLowDelta=gui.Checkbox(GroupboxEnableMayYawAA, "EnableLowDelta", "LowDelta",false)
+local LowDeltaSliderValue=gui.Slider(GroupboxEnableMayYawAA, "LowDeltaSliderValue", "Low Delta Value", 0, 1, 60 )
+local EnbaleAutoSwitchDesync=gui.Checkbox(GroupboxEnableMayYawAA,"EnbaleAutoSwitchDesync","Auto Desync Switch",false)
+local ComboboxAutoDesyncInvertMode=gui.Combobox(GroupboxEnableMayYawAA, "ComboboxAutoDesyncInvertMode", "Desync Switch Mode","FOV","Distance","Local Player Velocity")
+local DesyncSwitchKey=gui.Keybox(GroupboxEnableMayYawAA,"DesyncSwitchKey","Desync Switch Key", 0 )
 local DescriptionGroupbox=gui.Groupbox(MayYaw, "MayYaw Description", 5, 160, 175, 0)
 local Descriptionmaintext=gui.Text(DescriptionGroupbox,"MayYaw lua for aimware")
 local Descriptionversiontext=gui.Text(DescriptionGroupbox,"Version: "..Version)
@@ -89,19 +272,15 @@ local Descriptionavtortext=gui.Text(DescriptionGroupbox,"Created by Maybe")
 local DescriptionDiscordtext=gui.Text(DescriptionGroupbox,"Discord: MrMaybe#2990")
 local LastUpdGroupboxNotLatUpd=gui.Groupbox(MayYaw, "Last Update", 5, 335, 175, 0)
 local LastUpdGroupbox=gui.Groupbox(MayYaw, "Last Update", 5, 327, 175, 0)
-local LastUpddatetext=gui.Text(LastUpdGroupbox,"21.07.2021")
-local LastUpdlog1text=gui.Text(LastUpdGroupbox,"[+] General Tab Selection")
-local LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] Config Tab Selection")
-local LastUpdlog3text=gui.Text(LastUpdGroupbox,"[+] Configs system")
-local LastUpdlog4text=gui.Text(LastUpdGroupbox,"[+] NoScope HitChance")
-local LastUpdlog5text=gui.Text(LastUpdGroupbox,"[+] Double fire modes")
-local LastUpdlog6text=gui.Text(LastUpdGroupbox,"[+] Night mode")
-local LastUpdlog7text=gui.Text(LastUpdGroupbox,"[+] DT dmg HP/2")
-local LastUpdlog8text=gui.Text(LastUpdGroupbox,"[+] Keybinds styles")
-local LastUpdlog9text=gui.Text(LastUpdGroupbox,"[+] Watermark styles")
-local LastUpdlog10text=gui.Text(LastUpdGroupbox,"[=] Replaced clantag")
-local LastUpdlog11text=gui.Text(LastUpdGroupbox,"[=] Replaced JumpScout")
-local LastUpdlog12text=gui.Text(LastUpdGroupbox,"[=] Reworked keybinds drag")
+local LastUpddatetext=gui.Text(LastUpdGroupbox,"05.08.2021")
+local LastUpdlog2text=gui.Text(LastUpdGroupbox,"[+] IdealTick")
+local LastUpdlog3text=gui.Text(LastUpdGroupbox,"[+] Player AA State")
+local LastUpdlog4text=gui.Text(LastUpdGroupbox,"[+] Jitter")
+local LastUpdlog5text=gui.Text(LastUpdGroupbox,"[+] 2 AutoDir mode")
+local LastUpdlog7text=gui.Text(LastUpdGroupbox,"[=] Code System")
+local LastUpdlog8text=gui.Text(LastUpdGroupbox,"[=] Reworked MayYawAA")
+local LastUpdlog9text=gui.Text(LastUpdGroupbox,"[=] Cfg tab design")
+local LastUpdlog10text=gui.Text(LastUpdGroupbox,"[=] AutoBuy Design")
 local UpdateText=gui.Text(LastUpdGroupboxNotLatUpd,"PLEASE RELOAD SCRIPT".."\n\n New version: "..LastVersion.."\n\n Your Version:"..Version)
 local WatermarkColor=gui.ColorPicker(EnableWatermark,"Colorwatermark","Watermark Color", 56,56, 165, 255 )
 local KeybindsColor=gui.ColorPicker(EnableKeybinds,"KeybindsColor","Keybinds Color", 56,56, 165, 255 )
@@ -110,29 +289,44 @@ local PrefixLogColor=gui.ColorPicker(EnableHitLog,"PrefixLogColor","Prefix Log C
 local DesyncInvertActiveColor=gui.ColorPicker(EnableDesyncInvertIndicator,"DesyncInvertActiveColor","Active Arrow Color", 0,255, 0, 255 )
 local maxticks=gui.Reference('Misc', 'General', 'Server', 'sv_maxusrcmdprocessticks')
 ---------------------------
-local GuiElementsList={"mayyaw.Enableyaw","mayyaw.EnableCustomDoubleTapMode","mayyaw.EnableJumpScoutFix","mayyaw.EnableNoScopeHitChance","mayyaw.DoubleFireDamageHpdiv2",
-"mayyaw.ComboboxCustomDoubleFireMode","mayyaw.NoScopeHitChanceSlider","mayyaw.EnableMayYawAA","mayyaw.EbableCustomMayYawAA","mayyaw.EnableLagitAAonUse",
-"mayyaw.EnableAdvancedAtTarget","mayyaw.ComboxAtTargetPriotity","mayyaw.RotationSliderCustom","mayyaw.LBYSliderCustom","mayyaw.BaseYawSliderCustom",
-"mayyaw.EnableLowDelta","mayyaw.LowDeltaSliderValue","mayyaw.EnbaleAutoSwitchDesync","mayyaw.ComboboxAutoDesyncInvertMode","mayyaw.DesyncSwitchKey","mayyaw.EnableIndocators","mayyaw.EnableKeybinds","mayyaw.EnableDesyncInvertIndicator",
-"mayyaw.EnableWatermark","mayyaw.EnableNightMode","mayyaw.EnableAcpectRation","mayyaw.ComboboxKeybindsStyles","mayyaw.ComboboxWatermarkStyles","mayyaw.AspectRatioVal",
-"mayyaw.NightModeValSlider","mayyaw.EnableDmg","mayyaw.EnableEngineRadar","mayyaw.EnableAutoBuy","mayyaw.EnableHitLog","mayyaw.EnableClantag","mayyaw.awpdmgoverrideslider","mayyaw.autodmgoverrideslider","mayyaw.ssg08dmgoverrideslider",
-"mayyaw.heavypistoldmgoverrideslider","mayyaw.pistoldmgoverrideslider","mayyaw.ComboboxDMGmode","mayyaw.DMGKey","mayyaw.ComboxAutoBuyPrimaryWeapon","mayyaw.ComboxAutoBuySecondaryWeapon","mayyaw.ComboxAutoBuyArmor","mayyaw.EnableBuyGrenade",
-"mayyaw.EnableBuyMolotov","mayyaw.EnableBuySmoke"}
+local GuiElementsList={ 
+						"mayyaw.Enableyaw","mayyaw.EnableCustomDoubleTapMode","mayyaw.EnableJumpScoutFix","mayyaw.EnableNoScopeHitChance",
+						"mayyaw.DoubleFireDamageHpdiv2","mayyaw.ComboboxCustomDoubleFireMode","mayyaw.NoScopeHitChanceSlider","mayyaw.EbableMayYawAA",
+						"mayyaw.EnableLagitAAonUse","mayyaw.ComboboxAAPlayerState","mayyaw.GlobalRotationSliderCustom","mayyaw.GlobalLBYSliderCustom",
+						"mayyaw.GlobalBaseYawSliderCustom","mayyaw.EnableStandingAA","mayyaw.StandingRotationSliderCustom",
+                        "mayyaw.StandingLBYSliderCustom","mayyaw.StandingBaseYawSliderCustom","mayyaw.EnableSlowMotionAA","mayyaw.SlowMotionRotationSliderCustom",
+						"mayyaw.SlowMotionLBYSliderCustom","mayyaw.SlowMotionBaseYawSliderCustom","mayyaw.EnableMovingAA",
+						"mayyaw.MovingRotationSliderCustom","mayyaw.MovingLBYSliderCustom","mayyaw.MovingBaseYawSliderCustom","mayyaw.EnableAirAA",
+						"mayyaw.AirRotationSliderCustom","mayyaw.AirLBYSliderCustom","mayyaw.AirBaseYawSliderCustom",
+						"mayyaw.ComboxAtTargetPriotity","mayyaw.ComobboxAutoDirectionModeGlobal","mayyaw.ComobboxAutoDirectionModeStanding",
+						"mayyaw.ComobboxAutoDirectionModeSlowMotion","mayyaw.ComobboxAutoDirectionModeMoving","mayyaw.ComobboxAutoDirectionModeAir",
+						"mayyaw.EnableJitterGlobal","mayyaw.SliderJitterOffsetGlobal","mayyaw.EnableJitterStanding","mayyaw.SliderJitterOffsetStanding",
+						"mayyaw.EnableJitterSlowMotion","mayyaw.SliderJitterOffsetSlowMotion","mayyaw.EnableJitterMoving","mayyaw.SliderJitterOffsetMoving",
+						"mayyaw.EnableJitterAir","mayyaw.SliderJitterOffsetAir","mayyaw.EnableLowDelta","mayyaw.LowDeltaSliderValue","mayyaw.EnbaleAutoSwitchDesync",
+						"mayyaw.ComboboxAutoDesyncInvertMode","mayyaw.DesyncSwitchKey","mayyaw.EnableIndocators","mayyaw.EnableKeybinds","mayyaw.EnableDesyncInvertIndicator",
+						"mayyaw.EnableWatermark","mayyaw.EnableNightMode","mayyaw.EnableAcpectRation","mayyaw.ComboboxKeybindsStyles","mayyaw.ComboboxWatermarkStyles",
+						"mayyaw.AspectRatioVal","mayyaw.NightModeValSlider","mayyaw.EnableDmg","mayyaw.EnableEngineRadar","mayyaw.EnableAutoBuy",
+						"mayyaw.EnableHitLog","mayyaw.EnableClantag","mayyaw.awpdmgoverrideslider","mayyaw.autodmgoverrideslider","mayyaw.ssg08dmgoverrideslider",
+						"mayyaw.heavypistoldmgoverrideslider","mayyaw.pistoldmgoverrideslider","mayyaw.ComboboxDMGmode","mayyaw.DMGKey","mayyaw.ComboxAutoBuyPrimaryWeapon",
+						"mayyaw.ComboxAutoBuySecondaryWeapon","mayyaw.ComboxAutoBuyArmor","mayyaw.EnableBuyGrenade","mayyaw.EnableBuyMolotov","mayyaw.EnableBuySmoke"
+					  }
 local GuiElementsColorList={KeybindsColor,WatermarkColor,MainLogColor,PrefixLogColor,DesyncInvertActiveColor}
+local DefaultMayYawConfig="MSwxLDEsMSwxLDAsMTIsMSwwLDEsLTU4LDEwOCwwLDEsLTU4LDAsMCwxLC01OCwzOCwwLDEsLTM3LDc1LDAsMSwtMjMsNjEsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLDEsOCwxLDExLDEsMTEsMSwxNywwLDAsNzAsMCwxLDEsMSwxLDAsMSwxLDAsODgsMSwxLDEsMSwwLDgsMiw1LDkyLDEsMCw4NiwyLDMsMiwxLDEsMSwxNDIsMTY1LDIyOSwyNTUsMTQyLDE2NSwyMjksMjU1LDE1NiwyNTUsMjU1LDI1NSwwLDI1NSwzNiwyNTUsMTQyLDE2NSwyMjksMjU1"
 local CreateConfigButton=gui.Button( GroupboxConfigsActions, "Create", function()
 	local ConfigName=EditBoxConfig:GetValue()
-	if ConfigName == nil or ConfigName == "" then
+	if ConfigName == nil or ConfigName == "" or ConfigName == "MayYaw(Default)"then
 		return
 	end
 	file.Write("MayYawConfigs/"..ConfigName..".dat","")
-	local ConfigList={}
-    file.Enumerate(function(file)
-        if string.match(file, "%.dat") then
-            table.insert(ConfigList, file:sub(15,-5))
-        end
-    end)
+	GetLuaCfg()
     ListboxConfig:SetOptions(unpack(ConfigList))
 	EditBoxConfig:SetValue("")
+end)
+local DeleteConfigButton=gui.Button( GroupboxConfigsActions, "Delete",function()
+	GetLuaCfg()
+	file.Delete("MayYawConfigs/"..ConfigList[ListboxConfig:GetValue()+1]..".dat")
+	GetLuaCfg()
+	ListboxConfig:SetOptions(unpack(ConfigList))
 end)
 local SaveConfigButton=gui.Button( GroupboxConfigsActions, "Save", function()
 	local kbr,kbg,kbb,kba=KeybindsColor:GetValue()
@@ -141,12 +335,7 @@ local SaveConfigButton=gui.Button( GroupboxConfigsActions, "Save", function()
 	local plr,plg,plb,pla=PrefixLogColor:GetValue()
 	local iir,iig,iib,iia=DesyncInvertActiveColor:GetValue()
 	local GuiElementsColorValueList={{kbr,kbg,kbb,kba},{wtr,wtg,wtb,wta},{mlr,mlg,mlb,mla},{plr,plg,plb,pla},{iir,iig,iib,iia}}
-	local ConfigList={}
-    file.Enumerate(function(file)
-        if string.match(file, "%.dat") then
-            table.insert(ConfigList, file:sub(15,-5))
-        end
-    end)
+	GetLuaCfg()
     local ConfigName=ConfigList[ListboxConfig:GetValue()+1]
 	file.Write("MayYawConfigs/"..ConfigName..".dat","")
     fileConfig = file.Open("MayYawConfigs/"..ConfigName..".dat", "a");
@@ -170,15 +359,14 @@ local SaveConfigButton=gui.Button( GroupboxConfigsActions, "Save", function()
 	end
 end) 
 local LoadConfigButton=gui.Button( GroupboxConfigsActions, "Load",function()
-	local ConfigList={}
 	local Data={}
-    file.Enumerate(function(file)
-        if string.match(file, "%.dat") then
-            table.insert(ConfigList, file:sub(15,-5))
-        end
-    end)
+    GetLuaCfg()
     local ConfigName=ConfigList[ListboxConfig:GetValue()+1]
-	local ConfigData=file.Read("MayYawConfigs/"..ConfigName..".dat","r")
+	if ListboxConfig:GetValue()+1 == table.maxn(ConfigList) then
+		ConfigData=dec(DefaultMayYawConfig)
+	else
+		ConfigData=file.Read("MayYawConfigs/"..ConfigName..".dat","r")
+	end
 	for h in string.gmatch(ConfigData, '([^,]+)') do
 		table.insert(Data,h)
 	end
@@ -199,36 +387,24 @@ local LoadConfigButton=gui.Button( GroupboxConfigsActions, "Load",function()
 		GuiElementsColorList[i]:SetValue(kl1,kl2,kl3,a)
     end
 end)
-local DeleteConfigButton=gui.Button( GroupboxConfigsActions, "Delete",function()
-	local ConfigList={}
-    file.Enumerate(function(file)
-        if string.match(file, "%.dat") then
-            table.insert(ConfigList, file:sub(15,-5))
-        end
-    end)
-	file.Delete("MayYawConfigs/"..ConfigList[ListboxConfig:GetValue()+1]..".dat")
-	local ConfigList={}
-    file.Enumerate(function(file)
-        if string.match(file, "%.dat") then
-            table.insert(ConfigList, file:sub(15,-5))
-        end
-    end)
-	ListboxConfig:SetOptions(unpack(ConfigList))
-end)
-local RefreshConfigsButton=gui.Button(GroupboxConfigsActions,"Refresh Configs",function()
-    local ConfigList={}
-    file.Enumerate(function(file)
-        if string.match(file, "%.dat") then
-			if file:sub(0,14)=="MayYawConfigs/" then
-            	table.insert(ConfigList, file:sub(15,-5))
-			end
-        end
-    end)
+
+local RefreshConfigsButton=gui.Button(GroupboxConfigsActions,"Refresh",function()
+    GetLuaCfg()
     ListboxConfig:SetOptions(unpack(ConfigList))
 end)
-local ImportCofigByCode=gui.Button(GroupboxCodesActions,"Import Config",function()
+local ResetConfigButton=gui.Button(GroupboxConfigsActions,"Reset",function()
+	for i = 1, table.maxn(GuiElementsList) do
+		if i ~= 1 then
+			gui.SetValue(GuiElementsList[i],nil)
+		end
+	end
+	for i = 1, table.maxn(GuiElementsColorList) do
+		GuiElementsColorList[i]:SetValue(nil,nil,nil,nil)
+	end
+end)
+local ImportCofigByCode=gui.Button(GroupboxCodesActions,"Import",function()
 	local Data={}
-	local Code=EditBoxCodes:GetValue()
+	local Code=dec(EditBoxCodes:GetValue())
 	for h in string.gmatch(Code, '([^,]+)') do
 		table.insert(Data,h)
 	end
@@ -250,7 +426,7 @@ local ImportCofigByCode=gui.Button(GroupboxCodesActions,"Import Config",function
     end
 	EditBoxCodes:SetValue("")
 end)
-local ExportCofigByCode=gui.Button(GroupboxCodesActions,"Export Config(Console)",function()
+local ExportCofigByCode=gui.Button(GroupboxCodesActions,"Export",function()
 	local ExportConfig={}
 	local kbr,kbg,kbb,kba=KeybindsColor:GetValue()
 	local wtr,wtg,wtb,wta=WatermarkColor:GetValue()
@@ -258,14 +434,7 @@ local ExportCofigByCode=gui.Button(GroupboxCodesActions,"Export Config(Console)"
 	local plr,plg,plb,pla=PrefixLogColor:GetValue()
 	local iir,iig,iib,iia=DesyncInvertActiveColor:GetValue()
 	local GuiElementsColorValueList={{kbr,kbg,kbb,kba},{wtr,wtg,wtb,wta},{mlr,mlg,mlb,mla},{plr,plg,plb,pla},{iir,iig,iib,iia}}
-	local ConfigList={}
-    file.Enumerate(function(file)
-        if string.match(file, "%.dat") then
-            table.insert(ConfigList, file:sub(15,-5))
-        end
-    end)
-    local ConfigName=ConfigList[ListboxConfig:GetValue()+1]
-    local fileConfig = file.Open("MayYawConfigs/"..ConfigName..".dat", "a");
+	GetLuaCfg()
 	for i = 1, table.maxn(GuiElementsList) do
 		local Value=gui.GetValue(GuiElementsList[i])
 		if Value == true then
@@ -284,150 +453,60 @@ local ExportCofigByCode=gui.Button(GroupboxCodesActions,"Export Config(Console)"
 			end
 		end
 	end
-	print(table.concat(ExportConfig))
+	print(enc(table.concat(ExportConfig)))
 end)
----------------------------
---[All ffi
-ffi.cdef [[
-    void* GetProcAddress(void* hModule, const char* lpProcName);
-    void* GetModuleHandleA(const char* lpModuleName);
-
-    typedef struct {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
-    } color_struct_t;
-
-    typedef void (*console_color_print)(const color_struct_t&, const char*, ...);
-
-    typedef void* (__thiscall* get_client_entity_t)(void*, int);
-]]
-local ffi_log = ffi.cast("console_color_print", ffi.C.GetProcAddress(ffi.C.GetModuleHandleA("tier0.dll"), "?ConColorMsg@@YAXABVColor@@PBDZZ"))
-local SetClantag= ffi.cast('int(__fastcall*)(const char*, const char*)', mem.FindPattern('engine.dll', '53 56 57 8B DA 8B F9 FF 15'))
---]All ffi
---Fuctions:
-	--Render GradientRect
-function GradientRect(x,y,hight,wight,vert,r,g,b,a)
-	highty=hight
-	hight=a/hight
-	xx=x
-	if vert==false then
-		if hight > 0 then
-			for i=a, 0, -hight do
-				draw.Color(r,g,b,i)
-				draw.FilledRect(x,y,x+2,wight)
-				x=x+1
-			end
-		elseif hight < 0 then
-			for i=0, a, -hight do
-				draw.Color(r,g,b,i)
-				draw.FilledRect(x,y,x+2,wight)
-				x=x+1
-			end
-		end
-	elseif vert==true then
-		if wight > 0 then
-			for i=a, 0, -wight do
-				draw.Color(r,g,b,i)
-				draw.FilledRect(xx,y,highty,y+2)
-				y=y+1
-			end
-		elseif wight < 0 then
-			for i=0, a, -wight do
-				draw.Color(r,g,b,i)
-				draw.FilledRect(xx,y,highty,y+2)
-				y=y+1
-			end
-		end
-	end
-end
-	--Color Log
-	function client.color_log(r, g, b, msg, ...)
-	    for k, v in pairs({...}) do
-	        msg = tostring(msg .. v)
-	    end
-	    local clr = ffi.new("color_struct_t")
-	   	clr.r, clr.g, clr.b, clr.a = r, g, b, 255
-	    ffi_log(clr, msg)
-	end
-	--HitGroup for Damagelog
-	function HitGroup(HitGroup)
-	    if HitGroup == nil then
-	        return;
-	    elseif HitGroup == 0 then
-	        return "body";
-	    elseif HitGroup == 1 then
-	        return "head";
-	    elseif HitGroup == 2 then
-	        return "chest";
-	    elseif HitGroup== 3 then
-	        return "stomach";
-	    elseif HitGroup == 4 then
-	        return "left arm";
-	    elseif HitGroup == 5 then
-	        return "right arm";
-	    elseif HitGroup == 6 then
-	        return "left leg";
-	    elseif HitGroupP == 7 then
-	        return "right leg";
-	    elseif HitGroup == 10 then
-	        return "body";
-	    end
-	end
-	--
-	function GetActiveGun()
-		local lp=entities.GetLocalPlayer()
-		local lpaw=lp:GetWeaponID()
-		if lpaw==2 or lpaw==3 or lpaw==4 or lpaw==30 or lpaw==32 or lpaw==36 or lpaw==61 or lpaw==63 then
-			wclass="pistol"
-		elseif lpaw==9 then
-			wclass="sniper"
-		elseif lpaw==40 then
-			wclass="scout"
-		elseif lpaw==1 then
-			wclass="hpistol"
-		elseif lpaw==17 or lpaw== 19 or lpaw== 23 or lpaw== 24 or lpaw== 26 or lpaw== 33 or lpaw== 34 then
-			wclass="smg"
-		elseif lpaw==7 or lpaw==8 or lpaw== 10 or lpaw== 13 or lpaw== 16 or lpaw== 39 or lpaw== 61 then
-			wclass="rifle"
-		elseif lpaw== 25 or lpaw== 27 or lpaw== 29 or lpaw== 35 then
-			wclass="shotgun"
-		elseif lpaw == 38 or lpaw== 11 then
-			wclass="asniper"
-		elseif lpaw == 28 or lpaw== 14 then
-			wclass="lmg"
-		else
-			wclass="other"
-		end
-		return wclass
-	end
-	--
+--------------------------
+--[Gui Corections
+CustomGui(CreateConfigButton,nil,55,80,25)
+CustomGui(DeleteConfigButton,90,55,80,25)
+CustomGui(LoadConfigButton,nil,95,80,25)
+CustomGui(SaveConfigButton,90,95,80,25)
+CustomGui(RefreshConfigsButton,nil,135,80,25)
+CustomGui(ResetConfigButton,90,135,80,25)
+CustomGui(ImportCofigByCode,nil,55,80,25)
+CustomGui(ExportCofigByCode,90,55,80,25)
+CustomGui(ComboboxDMGmode,nil,nil,80,nil)
+CustomGui(DMGKey,90,240,nil,nil)
+CustomGui(ComboboxAutoBuyPrimaryWeapon,nil,nil,95,nil)
+CustomGui(ComboboxAutoBuySecondaryWeapon,105,0,95,nil)
+CustomGui(ComboboxAutoBuyArmor,nil,nil,95,nil)
+CustomGui(GrenadeMultibox,105,56,95,nil)
+CustomGui(ComboboxAAPlayerState,nil,nil,150,nil)
+CustomGui(ComboboxAutoDesyncInvertMode,nil,nil,150,nil)
+CustomGui(DesyncSwitchKey,nil,nil,200,nil)
+CustomGui(ComboxAtTargetPriotity,220,0,150,nil)
+CustomGui(ComobboxAutoDirectionModeGlobal,nil,nil,150,nil)
+CustomGui(ComobboxAutoDirectionModeStanding,nil,nil,150,nil)
+CustomGui(ComobboxAutoDirectionModeSlowMotion,nil,nil,150,nil)
+CustomGui(ComobboxAutoDirectionModeMoving,nil,nil,150,nil)
+CustomGui(ComobboxAutoDirectionModeAir,nil,nil,150,nil)
+--Gui Corections]
 --Default Presets
-local DefScopeAutoValue=gui.GetValue("rbot.accuracy.weapon.asniper.hitchance")
-local DefDmgAutoValue=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
-local AspectRatioDefVal=0
-local NightModeDefVal=100
-local HitScore=1
-local DesyncSide="Left"
-max=100000000
-mindist=max
-Font1=draw.CreateFont("Arial Black", 15)
-Font2 = draw.CreateFont("Verdana", 13)
-Font3 = draw.CreateFont("Verdana", 12)
-Font4=draw.CreateFont("Verdana", 15)
-defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
-defRotation=gui.GetValue("rbot.antiaim.base")
-awpdefdmg=gui.GetValue("rbot.accuracy.weapon.sniper.mindmg")
-autodefdmg=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
-ssgdefdmg=gui.GetValue("rbot.accuracy.weapon.scout.mindmg")
-heavydefdmg=gui.GetValue("rbot.accuracy.weapon.hpistol.mindmg")
-pistoldefdmg=gui.GetValue("rbot.accuracy.weapon.pistol.mindmg")
+local DefScopeAutoValue = gui.GetValue("rbot.accuracy.weapon.asniper.hitchance")
+local DefDmgAutoValue = gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
+local AspectRatioDefVal = 0
+local NightModeDefVal = 100
+local HitScore = 0
+local DesyncSide = "Left"
+local max = 100000000
+local mindist = max
+local LocalPlayerSpread=0
+local Font1 = draw.CreateFont("Arial Black", 15)
+local Font2 = draw.CreateFont("Verdana", 13)
+local Font3 = draw.CreateFont("Verdana", 12)
+local Font4 = draw.CreateFont("Verdana", 15)
+local defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
+local defRotation=gui.GetValue("rbot.antiaim.base")
+local awpdefdmg=gui.GetValue("rbot.accuracy.weapon.sniper.mindmg")
+local autodefdmg=gui.GetValue("rbot.accuracy.weapon.asniper.mindmg")
+local ssgdefdmg=gui.GetValue("rbot.accuracy.weapon.scout.mindmg")
+local heavydefdmg=gui.GetValue("rbot.accuracy.weapon.hpistol.mindmg")
+local pistoldefdmg=gui.GetValue("rbot.accuracy.weapon.pistol.mindmg")
 local toggle=1
 local DesyncSwitchToggle=-1
 local AutoPeekToggle=-1
 local x1=100; local y1=100; local wight=230;local hight=200
---local DtKeybinds=true;HsKeybinds=true;FdKeybinds=true;SlowKeybinds=true;DmgKeybinds=true;SpeedburstKeybinds=true;AutoPeekKeybinds=true
+local OverrideScoutHC=false
 --Version
 if LastVersion~=Version then
 	LastUpdGroupboxNotLatUpd:SetInvisible(false)
@@ -462,45 +541,230 @@ function GuiElements()
 	end
 	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==1 then
 		if EnableMayYawAA:GetValue() then
-			if EnableCustomMayYawAA:GetValue() then
-				if EnableLowDelta:GetValue() then
-					LowDeltaSliderValue:SetInvisible(false)
-				else
-					LowDeltaSliderValue:SetInvisible(true)
-				end
-				if EnableAdvancedAtTarget:GetValue() then
-					BaseYawSliderCustom:SetDisabled(true)
-				else
-					BaseYawSliderCustom:SetDisabled(false)
-				end
-				if EnbaleAutoSwitchDesync:GetValue() then
-					ComboboxAutoDesyncInvertMode:SetInvisible(false)
-					DesyncSwitchKey:SetDisabled(true)
-				else
-					DesyncSwitchKey:SetDisabled(false)
-					ComboboxAutoDesyncInvertMode:SetInvisible(true)
-				end
+			if EnableLowDelta:GetValue() then
+				LowDeltaSliderValue:SetInvisible(false)
+			else
+				LowDeltaSliderValue:SetInvisible(true)
 			end
-			EnableCustomMayYawAA:SetDisabled(false)
-		else
-			EnableCustomMayYawAA:SetDisabled(true)
-			EnableCustomMayYawAA:SetValue(false)
+			if ComobboxAutoDirectionModeGlobal:GetValue() == 0 then
+                GlobalBaseYawSliderCustom:SetDisabled(true)
+            else
+                GlobalBaseYawSliderCustom:SetDisabled(false)
+            end
+            if ComobboxAutoDirectionModeStanding:GetValue() == 0 then
+                StandingBaseYawSliderCustom:SetDisabled(true)
+            else
+                StandingBaseYawSliderCustom:SetDisabled(false)
+            end
+            if ComobboxAutoDirectionModeSlowMotion:GetValue() == 0 then
+                SlowMotionBaseYawSliderCustom:SetDisabled(true)
+            else
+                SlowMotionBaseYawSliderCustom:SetDisabled(false)
+            end
+            if ComobboxAutoDirectionModeMoving:GetValue() == 0 then
+                MovingBaseYawSliderCustom:SetDisabled(true)
+            else
+                MovingBaseYawSliderCustom:SetDisabled(false)
+            end
+            if ComobboxAutoDirectionModeAir:GetValue() == 0 then
+                AirBaseYawSliderCustom:SetDisabled(true)
+            else
+                AirBaseYawSliderCustom:SetDisabled(false)
+            end
+			if EnbaleAutoSwitchDesync:GetValue() then
+				ComboboxAutoDesyncInvertMode:SetInvisible(false)
+				DesyncSwitchKey:SetDisabled(true)
+			else
+				DesyncSwitchKey:SetDisabled(false)
+				ComboboxAutoDesyncInvertMode:SetInvisible(true)
+			end
 		end
-		if EnableCustomMayYawAA:GetValue() then
-			GroupboxCustomMayYawAA:SetInvisible(false)
+		EnableMayYawAA:SetDisabled(false)
+		if EnableMayYawAA:GetValue() then --Gui AA State [Global]
+            if ComboboxAAPlayerState:GetValue() == 0 then
+				SliderJitterOffsetGlobal:SetInvisible(false)
+				SliderJitterOffsetStanding:SetInvisible(true)
+				SliderJitterOffsetSlowMotion:SetInvisible(true)
+				SliderJitterOffsetMoving:SetInvisible(true)
+				SliderJitterOffsetAir:SetInvisible(true)
+				EnableJitterGlobal:SetInvisible(false)
+				EnableJitterStanding:SetInvisible(true)
+				EnableJitterSlowMotion:SetInvisible(true)
+				EnableJitterMoving:SetInvisible(true)
+				EnableJitterAir:SetInvisible(true)
+                ComobboxAutoDirectionModeGlobal:SetInvisible(false)
+                ComobboxAutoDirectionModeStanding:SetInvisible(true)
+                ComobboxAutoDirectionModeSlowMotion:SetInvisible(true)
+                ComobboxAutoDirectionModeMoving:SetInvisible(true)
+                ComobboxAutoDirectionModeAir:SetInvisible(true)
+                EnableStandingAA:SetInvisible(true)
+                EnableSlowMotionAA:SetInvisible(true)
+                EnableMovingAA:SetInvisible(true)
+                EnableAirAA:SetInvisible(true)
+                GlobalRotationSliderCustom:SetInvisible(false)
+                GlobalLBYSliderCustom:SetInvisible(false)
+                GlobalBaseYawSliderCustom:SetInvisible(false)
+                StandingRotationSliderCustom:SetInvisible(true)
+                StandingLBYSliderCustom:SetInvisible(true)
+                StandingBaseYawSliderCustom:SetInvisible(true)
+                SlowMotionRotationSliderCustom:SetInvisible(true)
+                SlowMotionLBYSliderCustom:SetInvisible(true)
+                SlowMotionBaseYawSliderCustom:SetInvisible(true)
+                MovingRotationSliderCustom:SetInvisible(true)
+                MovingLBYSliderCustom:SetInvisible(true)
+                MovingBaseYawSliderCustom:SetInvisible(true)
+                AirRotationSliderCustom:SetInvisible(true)
+                AirLBYSliderCustom:SetInvisible(true)
+                AirBaseYawSliderCustom:SetInvisible(true)
+            elseif ComboboxAAPlayerState:GetValue() == 1 then  --Gui AA State [Standing]
+				SliderJitterOffsetGlobal:SetInvisible(true)
+				SliderJitterOffsetStanding:SetInvisible(false)
+				SliderJitterOffsetSlowMotion:SetInvisible(true)
+				SliderJitterOffsetMoving:SetInvisible(true)
+				SliderJitterOffsetAir:SetInvisible(true)
+				EnableJitterGlobal:SetInvisible(true)
+				EnableJitterStanding:SetInvisible(false)
+				EnableJitterSlowMotion:SetInvisible(true)
+				EnableJitterMoving:SetInvisible(true)
+				EnableJitterAir:SetInvisible(true)
+                ComobboxAutoDirectionModeGlobal:SetInvisible(true)
+                ComobboxAutoDirectionModeStanding:SetInvisible(false)
+                ComobboxAutoDirectionModeSlowMotion:SetInvisible(true)
+                ComobboxAutoDirectionModeMoving:SetInvisible(true)
+                ComobboxAutoDirectionModeAir:SetInvisible(true)
+                EnableStandingAA:SetInvisible(false)
+                EnableSlowMotionAA:SetInvisible(true)
+                EnableMovingAA:SetInvisible(true)
+                EnableAirAA:SetInvisible(true)
+                GlobalRotationSliderCustom:SetInvisible(true)
+                GlobalLBYSliderCustom:SetInvisible(true)
+                GlobalBaseYawSliderCustom:SetInvisible(true)
+                StandingRotationSliderCustom:SetInvisible(false)
+                StandingLBYSliderCustom:SetInvisible(false)
+                StandingBaseYawSliderCustom:SetInvisible(false)
+                SlowMotionRotationSliderCustom:SetInvisible(true)
+                SlowMotionLBYSliderCustom:SetInvisible(true)
+                SlowMotionBaseYawSliderCustom:SetInvisible(true)
+                MovingRotationSliderCustom:SetInvisible(true)
+                MovingLBYSliderCustom:SetInvisible(true)
+                MovingBaseYawSliderCustom:SetInvisible(true)
+                AirRotationSliderCustom:SetInvisible(true)
+                AirLBYSliderCustom:SetInvisible(true)
+                AirBaseYawSliderCustom:SetInvisible(true)
+            elseif ComboboxAAPlayerState:GetValue() == 2 then --Gui AA State [SlowMotion]
+				SliderJitterOffsetGlobal:SetInvisible(true)
+				SliderJitterOffsetStanding:SetInvisible(true)
+				SliderJitterOffsetSlowMotion:SetInvisible(false)
+				SliderJitterOffsetMoving:SetInvisible(true)
+				SliderJitterOffsetAir:SetInvisible(true)
+				EnableJitterGlobal:SetInvisible(true)
+				EnableJitterStanding:SetInvisible(true)
+				EnableJitterSlowMotion:SetInvisible(false)
+				EnableJitterMoving:SetInvisible(true)
+				EnableJitterAir:SetInvisible(true)
+                ComobboxAutoDirectionModeGlobal:SetInvisible(true)
+                ComobboxAutoDirectionModeStanding:SetInvisible(true)
+                ComobboxAutoDirectionModeSlowMotion:SetInvisible(false)
+                ComobboxAutoDirectionModeMoving:SetInvisible(true)
+                ComobboxAutoDirectionModeAir:SetInvisible(true)
+                EnableStandingAA:SetInvisible(true)
+                EnableSlowMotionAA:SetInvisible(false)
+                EnableMovingAA:SetInvisible(true)
+                EnableAirAA:SetInvisible(true)
+                GlobalRotationSliderCustom:SetInvisible(true)
+                GlobalLBYSliderCustom:SetInvisible(true)
+                GlobalBaseYawSliderCustom:SetInvisible(true)
+                StandingRotationSliderCustom:SetInvisible(true)
+                StandingLBYSliderCustom:SetInvisible(true)
+                StandingBaseYawSliderCustom:SetInvisible(true)
+                SlowMotionRotationSliderCustom:SetInvisible(false)
+                SlowMotionLBYSliderCustom:SetInvisible(false)
+                SlowMotionBaseYawSliderCustom:SetInvisible(false)
+                MovingRotationSliderCustom:SetInvisible(true)
+                MovingLBYSliderCustom:SetInvisible(true)
+                MovingBaseYawSliderCustom:SetInvisible(true)
+                AirRotationSliderCustom:SetInvisible(true)
+                AirLBYSliderCustom:SetInvisible(true)
+                AirBaseYawSliderCustom:SetInvisible(true)
+            elseif ComboboxAAPlayerState:GetValue() == 3 then --Gui AA State [Moving]
+				SliderJitterOffsetGlobal:SetInvisible(true)
+				SliderJitterOffsetStanding:SetInvisible(true)
+				SliderJitterOffsetSlowMotion:SetInvisible(true)
+				SliderJitterOffsetMoving:SetInvisible(false)
+				SliderJitterOffsetAir:SetInvisible(true)
+				EnableJitterGlobal:SetInvisible(true)
+				EnableJitterStanding:SetInvisible(true)
+				EnableJitterSlowMotion:SetInvisible(true)
+				EnableJitterMoving:SetInvisible(false)
+				EnableJitterAir:SetInvisible(true)
+                ComobboxAutoDirectionModeGlobal:SetInvisible(true)
+                ComobboxAutoDirectionModeStanding:SetInvisible(true)
+                ComobboxAutoDirectionModeSlowMotion:SetInvisible(true)
+                ComobboxAutoDirectionModeMoving:SetInvisible(false)
+                ComobboxAutoDirectionModeAir:SetInvisible(true)
+                EnableStandingAA:SetInvisible(true)
+                EnableSlowMotionAA:SetInvisible(true)
+                EnableMovingAA:SetInvisible(false)
+                EnableAirAA:SetInvisible(true)
+                GlobalRotationSliderCustom:SetInvisible(true)
+                GlobalLBYSliderCustom:SetInvisible(true)
+                GlobalBaseYawSliderCustom:SetInvisible(true)
+                StandingRotationSliderCustom:SetInvisible(true)
+                StandingLBYSliderCustom:SetInvisible(true)
+                StandingBaseYawSliderCustom:SetInvisible(true)
+                SlowMotionRotationSliderCustom:SetInvisible(true)
+                SlowMotionLBYSliderCustom:SetInvisible(true)
+                SlowMotionBaseYawSliderCustom:SetInvisible(true)
+                MovingRotationSliderCustom:SetInvisible(false)
+                MovingLBYSliderCustom:SetInvisible(false)
+                MovingBaseYawSliderCustom:SetInvisible(false)
+                AirRotationSliderCustom:SetInvisible(true)
+                AirLBYSliderCustom:SetInvisible(true)
+                AirBaseYawSliderCustom:SetInvisible(true)
+            elseif ComboboxAAPlayerState:GetValue() == 4 then --Gui AA State [Air]
+				SliderJitterOffsetGlobal:SetInvisible(true)
+				SliderJitterOffsetStanding:SetInvisible(true)
+				SliderJitterOffsetSlowMotion:SetInvisible(true)
+				SliderJitterOffsetMoving:SetInvisible(true)
+				SliderJitterOffsetAir:SetInvisible(false)
+				EnableJitterGlobal:SetInvisible(true)
+				EnableJitterStanding:SetInvisible(true)
+				EnableJitterSlowMotion:SetInvisible(true)
+				EnableJitterMoving:SetInvisible(true)
+				EnableJitterAir:SetInvisible(false)
+                ComobboxAutoDirectionModeGlobal:SetInvisible(true)
+                ComobboxAutoDirectionModeStanding:SetInvisible(true)
+                ComobboxAutoDirectionModeSlowMotion:SetInvisible(true)
+                ComobboxAutoDirectionModeMoving:SetInvisible(true)
+                ComobboxAutoDirectionModeAir:SetInvisible(false)
+                EnableStandingAA:SetInvisible(true)
+                EnableSlowMotionAA:SetInvisible(true)
+                EnableMovingAA:SetInvisible(true)
+                EnableAirAA:SetInvisible(false)
+                GlobalRotationSliderCustom:SetInvisible(true)
+                GlobalLBYSliderCustom:SetInvisible(true)
+                GlobalBaseYawSliderCustom:SetInvisible(true)
+                StandingRotationSliderCustom:SetInvisible(true)
+                StandingLBYSliderCustom:SetInvisible(true)
+                StandingBaseYawSliderCustom:SetInvisible(true)
+                SlowMotionRotationSliderCustom:SetInvisible(true)
+                SlowMotionLBYSliderCustom:SetInvisible(true)
+                SlowMotionBaseYawSliderCustom:SetInvisible(true)
+                MovingRotationSliderCustom:SetInvisible(true)
+                MovingLBYSliderCustom:SetInvisible(true)
+                MovingBaseYawSliderCustom:SetInvisible(true)
+                AirRotationSliderCustom:SetInvisible(false)
+                AirLBYSliderCustom:SetInvisible(false)
+                AirBaseYawSliderCustom:SetInvisible(false)
+            end
+			GroupboxEnableMayYawAA:SetInvisible(false)
 		else
-			GroupboxCustomMayYawAA:SetInvisible(true)
+            GroupboxEnableMayYawAA:SetInvisible(true)
 		end
 		GroupboxAntiAim:SetInvisible(false)
-		if EnableAdvancedAtTarget:GetValue() then
-			ComboxAtTargetPriotity:SetDisabled(false)
-		else
-			ComboxAtTargetPriotity:SetDisabled(true)
-		end
 	else
-		GroupboxCustomMayYawAA:SetInvisible(true)
+        GroupboxEnableMayYawAA:SetInvisible(true)
 		GroupboxAntiAim:SetInvisible(true)
-		
 	end
 	if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==2 then
 		GroupboxVisuals:SetInvisible(false)
@@ -557,6 +821,19 @@ function GuiElements()
 		GroupboxAutoBuy:SetInvisible(true)
 	end
     if EnableYaw:GetValue() and ComboboxMenuMode:GetValue()==4 then
+	local ConfigList={}
+    file.Enumerate(function(file)
+    	if string.match(file, "%.dat") then
+        	table.insert(ConfigList, file:sub(15,-5))
+    	end
+    end)
+	   if ListboxConfig:GetValue() == table.maxn(ConfigList) then
+		SaveConfigButton:SetDisabled(true)
+		DeleteConfigButton:SetDisabled(true)
+	   else
+		SaveConfigButton:SetDisabled(false)
+		DeleteConfigButton:SetDisabled(false)
+	   end
        GroupboxConfigsActions:SetInvisible(false)
        GroupboxConfigs:SetInvisible(false)
 	   GroupboxCodesActions:SetInvisible(false)
@@ -576,6 +853,26 @@ callbacks.Register("CreateMove", function(ucmd)
 vel=ucmd.sidemove
 end);
 --function for Check is DmgOverride active
+function GetPlayerState()
+    local SlowKey=gui.GetValue("rbot.accuracy.movement.slowkey")
+    local LocalPlayer=entities.GetLocalPlayer()
+    local VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
+	local VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )
+	local LocalPlayerVelocity=math.ceil(math.sqrt(VelocityX^2 + VelocityY^2))
+    if bit.band( LocalPlayer:GetPropInt( "m_fFlags" ), 1 ) == 1 and LocalPlayerVelocity < 4 then
+        PlayerState="Standing"
+    end
+    if bit.band( LocalPlayer:GetPropInt( "m_fFlags" ), 1 ) == 1 and LocalPlayerVelocity > 4 and SlowKey~=0 and input.IsButtonDown( SlowKey ) ==false then
+        PlayerState="Moving"
+    end
+    if bit.band( LocalPlayer:GetPropInt( "m_fFlags" ), 1 ) == 1 and SlowKey~=0 and input.IsButtonDown( SlowKey ) then
+        PlayerState="SlowMotion"
+    end
+    if bit.band( LocalPlayer:GetPropInt( "m_fFlags" ), 1 ) == 0 then
+        PlayerState="Air"
+    end
+    return PlayerState
+end
 function isDmgEnable()
 	local dmgovkey=gui.GetValue("mayyaw.DMGKey")
 	if EnableYaw:GetValue() and EnableDmg:GetValue() and dmgovkey~=0 then
@@ -819,10 +1116,7 @@ function Indicators()
 		hsa=0
 	end
 		slowkey = gui.GetValue("rbot.accuracy.movement.slowkey")
-	if slowkey~=0 and input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue()==false then
-		draw.Color(255,255,255,255)
-		draw.Text(WightScreen/2-35,HightScreen/2+41,"LOW DELTA")
-	elseif slowkey~=0 and input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue() and EnableLowDelta:GetValue() then
+	if slowkey~=0 and input.IsButtonDown(slowkey) and EnableMayYawAA:GetValue() and EnableLowDelta:GetValue() then
 		draw.Color(255,255,255,255)
 		draw.Text(WightScreen/2-35,HightScreen/2+41,"LOW DELTA")
 	else
@@ -1023,15 +1317,23 @@ function Watermark()
 end
 --function JumpScoutFix
 function JumpScoutFix()
-	if EnableJumpScoutFix:GetValue() == false then
-		defhcscout=gui.GetValue("rbot.accuracy.weapon.scout.hitchance")
-	end
 	if EnableYaw:GetValue() and EnableJumpScoutFix:GetValue() then
 		local lp=entities.GetLocalPlayer()
 		if lp ~=nil then
 			if lp:IsAlive() then
 				playervelocity = math.sqrt(lp:GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + lp:GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
 				if lp:GetPropEntity("m_hActiveWeapon"):GetName():lower() == "weapon_ssg08" then
+					if bit.band( lp:GetPropInt( "m_fFlags" ), 1 ) == 0 and OverrideScoutHC==false and lp:GetPropEntity("m_hActiveWeapon"):GetWeaponInaccuracy()< 0.04 then
+						defhcscout=gui.GetValue( "rbot.accuracy.weapon.scout.hitchance" )
+						gui.SetValue("rbot.accuracy.weapon.scout.hitchance", 5)
+						
+						OverrideScoutHC=true
+					elseif bit.band( lp:GetPropInt( "m_fFlags" ), 1 ) == 1 and OverrideScoutHC == true then
+						
+						gui.SetValue("rbot.accuracy.weapon.scout.hitchance", defhcscout)
+						OverrideScoutHC=false
+					end
+					
 					if playervelocity > 5 then
 						gui.SetValue("misc.strafe.enable", true)
 					else
@@ -1042,6 +1344,11 @@ function JumpScoutFix()
 				end
 			else
 				gui.SetValue("misc.strafe.enable",true)
+			end
+		else
+			if OverrideScoutHC== true then
+				gui.SetValue("rbot.accuracy.weapon.scout.hitchance", defhcscout)
+				OverrideScoutHC=false
 			end
 		end
 	end
@@ -1058,32 +1365,6 @@ function EngineRadar()
 		end
 	end
 end
---function MayYawAA
-function MayYawAA()
-	local LocalPlayer=entities.GetLocalPlayer()
-	SlowEnable=gui.GetValue("rbot.accuracy.movement.slowkey")
-	gui.SetValue("rbot.antiaim.advanced.antialign",1)
-	Delta()
-	local mode="FOV"
-	local DesyncSide=DesyncSideFunc(mode)
-	if DesyncSide==nil then
-		DesyncSide="Left"
-	end
-	if DesyncSide == "Left" then
-		gui.SetValue("rbot.antiaim.base.lby",-delta)
-		gui.SetValue("rbot.antiaim.base.rotation",58-delta)
-	elseif DesyncSide == "Right" then
-		gui.SetValue("rbot.antiaim.base.lby",delta)
-		gui.SetValue("rbot.antiaim.base.rotation",-58+delta)
-		if EnableAdvancedAtTarget:GetValue()==false then
-			gui.SetValue("rbot.antiaim.base",-167)
-		end
-	else
-		if EnableAdvancedAtTarget:GetValue()==false then
-			gui.SetValue("rbot.antiaim.base",177)
-		end
-	end
-end
 --function for getting Low delta for desync
 function Delta()
 	if input.IsButtonDown(SlowEnable) then
@@ -1093,18 +1374,150 @@ function Delta()
 	end
 	return delta
 end
---function CustomMayYawAA
-function CustomMayYawAA()
+--function MayYawAA
+function MayYawAA()
 	local SlowEnable=gui.GetValue("rbot.accuracy.movement.slowkey")
 	local DesyncSwitchKeyValue=gui.GetValue("mayyaw.DesyncSwitchKey")
 	local LocalPlayer=entities.GetLocalPlayer()
-	local RotationOffsetCustom=gui.GetValue("mayyaw.RotationSliderCustom")
-	local LbyOffsetCustom=gui.GetValue("mayyaw.LBYSliderCustom")
-	local BaseYawOffsetCustom=gui.GetValue("mayyaw.BaseYawSliderCustom")
-	if EnableAdvancedAtTarget:GetValue() and LocalPlayer~=nil and LocalPlayer:IsAlive() then
-		AdvancedAtTarget()
-	end
-	if EnableLowDelta:GetValue() and input.IsButtonDown(SlowEnable) then
+
+    if GetPlayerState() == "Standing" then
+        if EnableStandingAA:GetValue() then
+            if ComobboxAutoDirectionModeStanding:GetValue() == 0 then
+				if EnableJitterStanding:GetValue() then
+					local JitterOffset = SliderJitterOffsetStanding:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+                EnableAdvancedAtTarget=true
+            elseif ComobboxAutoDirectionModeStanding:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=StandingRotationSliderCustom:GetValue()
+            LbyOffsetCustom=StandingLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=StandingBaseYawSliderCustom:GetValue()
+        else
+            if ComobboxAutoDirectionModeGlobal:GetValue() == 0 then
+                EnableAdvancedAtTarget=true
+				if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+            elseif ComobboxAutoDirectionModeGlobal:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=GlobalRotationSliderCustom:GetValue()
+            LbyOffsetCustom=GlobalLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=GlobalBaseYawSliderCustom:GetValue()
+        end
+    elseif GetPlayerState() == "SlowMotion" then
+        if EnableSlowMotionAA:GetValue() then
+            if ComobboxAutoDirectionModeSlowMotion:GetValue() == 0 then
+				if EnableJitterSlowMotion:GetValue() then
+					local JitterOffset=SliderJitterOffsetSlowMotion:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+                EnableAdvancedAtTarget=true
+            elseif ComobboxAutoDirectionModeSlowMotion:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=SlowMotionRotationSliderCustom:GetValue()
+            LbyOffsetCustom=SlowMotionLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=SlowMotionBaseYawSliderCustom:GetValue()
+        else
+            if ComobboxAutoDirectionModeGlobal:GetValue() == 0 then
+                EnableAdvancedAtTarget=true
+				if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+            elseif ComobboxAutoDirectionModeGlobal:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=GlobalRotationSliderCustom:GetValue()
+            LbyOffsetCustom=GlobalLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=GlobalBaseYawSliderCustom:GetValue()
+        end
+    elseif GetPlayerState() == "Moving" then
+        if EnableMovingAA:GetValue() then
+            if ComobboxAutoDirectionModeMoving:GetValue() == 0 then
+                EnableAdvancedAtTarget=true
+				if EnableJitterMoving:GetValue() then
+					local JitterOffset=SliderJitterOffsetMoving:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+            elseif ComobboxAutoDirectionModeMoving:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=MovingRotationSliderCustom:GetValue()
+            LbyOffsetCustom=MovingLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=MovingBaseYawSliderCustom:GetValue()
+        else
+            if ComobboxAutoDirectionModeGlobal:GetValue() == 0 then
+                EnableAdvancedAtTarget=true
+                if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+            elseif ComobboxAutoDirectionModeGlobal:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=GlobalRotationSliderCustom:GetValue()
+            LbyOffsetCustom=GlobalLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=GlobalBaseYawSliderCustom:GetValue()
+        end
+    elseif GetPlayerState() == "Air" then
+        if EnableAirAA:GetValue() then
+            if ComobboxAutoDirectionModeAir:GetValue() == 0 then
+                EnableAdvancedAtTarget=true
+				if EnableJitterAir:GetValue() then
+					local JitterOffset=SliderJitterOffsetAir:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+            elseif ComobboxAutoDirectionModeAir:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=AirRotationSliderCustom:GetValue()
+            LbyOffsetCustom=AirLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=AirBaseYawSliderCustom:GetValue()
+        else
+            if ComobboxAutoDirectionModeGlobal:GetValue() == 0 then
+                EnableAdvancedAtTarget=true
+                if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()/2
+                	AdvancedAtTarget(true,JitterOffset)
+				else
+					AdvancedAtTarget(false,nil)
+				end
+            elseif ComobboxAutoDirectionModeStanding:GetValue() == 1 then
+                gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1)
+                EnableAdvancedAtTarget=false
+            end
+            RotationOffsetCustom=GlobalRotationSliderCustom:GetValue()
+            LbyOffsetCustom=GlobalLBYSliderCustom:GetValue()
+            BaseYawOffsetCustom=GlobalBaseYawSliderCustom:GetValue()
+        end  
+    end
+    if EnableLowDelta:GetValue() and input.IsButtonDown(SlowEnable) then
 		if RotationOffsetCustom<0 then
 			RotationOffset=-gui.GetValue("mayyaw.LowDeltaSliderValue")
 		end
@@ -1131,13 +1544,13 @@ function CustomMayYawAA()
 		end
 		local DesyncSide=DesyncSideFunc(mode)
 		if DesyncSide=="Right" then
-			if EnableAdvancedAtTarget:GetValue()==false then
+			if EnableAdvancedAtTarget==false then
 				BaseYawOffset=BaseYawOffsetCustom
 			end
 			RotationOffset=-math.abs(RotationOffset)
 			LbyOffset=math.abs(LbyOffset)
 		elseif DesyncSide=="Left" then
-			if EnableAdvancedAtTarget:GetValue()==false then
+			if EnableAdvancedAtTarget==false then
 				BaseYawOffset=-BaseYawOffsetCustom
 			end
 			RotationOffset=math.abs(RotationOffset)
@@ -1146,7 +1559,7 @@ function CustomMayYawAA()
 			gui.SetValue("rbot.antiaim.base",177)
 		end
 	elseif EnbaleAutoSwitchDesync:GetValue()==false then
-		if EnableAdvancedAtTarget:GetValue()==false then
+		if EnableAdvancedAtTarget==false then
 			BaseYawOffset=BaseYawOffsetCustom
 		end
 		if DesyncSwitchKeyValue~=0 then
@@ -1155,13 +1568,13 @@ function CustomMayYawAA()
 			end
 			if DesyncSwitchToggle==1 then
 				LbyOffset=LbyOffset*-1
-				if EnableAdvancedAtTarget:GetValue()==false then
+				if EnableAdvancedAtTarget==false then
 					BaseYawOffset=BaseYawOffset*-1
 				end
 				RotationOffset=RotationOffset*-1
 			elseif DesyncSwitchToggle==-1 then
 				LbyOffset=LbyOffset*1
-				if EnableAdvancedAtTarget:GetValue()==false then
+				if EnableAdvancedAtTarget==false then
 					BaseYawOffset=BaseYawOffset*1
 				end
 				RotationOffset=RotationOffset*1
@@ -1170,8 +1583,127 @@ function CustomMayYawAA()
 	end
 	gui.SetValue("rbot.antiaim.base.rotation",RotationOffset)
 	gui.SetValue("rbot.antiaim.base.lby",LbyOffset)
-	if EnableAdvancedAtTarget:GetValue()==false then
-		gui.SetValue("rbot.antiaim.base",BaseYawOffset)
+	
+	if EnableAdvancedAtTarget==false then
+		if GetPlayerState() == "Standing" then
+			if EnableStandingAA:GetValue() then
+				if ComobboxAutoDirectionModeStanding:GetValue() == 1 then
+					if EnableJitterStanding:GetValue() then
+						local JitterOffset=SliderJitterOffsetStanding:GetValue()
+						local BaseYaw=BaseYawOffset
+						Jitter(BaseYaw,JitterOffset)
+						Jitteroff=true
+					else
+						Jitteroff=false
+					end
+				end
+			else
+				if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()
+					local BaseYaw=BaseYawOffset
+					Jitter(BaseYaw,JitterOffset)
+					Jitteroff=true
+				else
+					Jitteroff=false
+				end
+			end
+		elseif GetPlayerState() == "SlowMotion" then
+			if EnableSlowMotionAA:GetValue() then
+				if ComobboxAutoDirectionModeSlowMotion:GetValue() == 1 then
+					if EnableJitterSlowMotion:GetValue() then
+						local JitterOffset=SliderJitterOffsetSlowMotion:GetValue()
+						local BaseYaw=BaseYawOffset
+						Jitter(BaseYaw,JitterOffset)
+						Jitteroff=true
+					else
+						Jitteroff=false
+					end
+				end
+			else
+				if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()
+					local BaseYaw=BaseYawOffset
+					Jitter(BaseYaw,JitterOffset)
+					Jitteroff=true
+				else
+					Jitteroff=false
+				end	
+			end
+		elseif GetPlayerState() == "Moving" then
+			if EnableMovingAA:GetValue() then
+				if ComobboxAutoDirectionModeMoving:GetValue() == 1 then
+					if EnableJitterMoving:GetValue() then
+						local JitterOffset=SliderJitterOffsetMoving:GetValue()
+						local BaseYaw=BaseYawOffset
+						Jitter(BaseYaw,JitterOffset)
+						Jitteroff=true
+					else
+						Jitteroff=false
+					end
+				end
+			else
+				if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()
+					local BaseYaw=BaseYawOffset
+					Jitter(BaseYaw,JitterOffset)
+					Jitteroff=true
+				else
+					Jitteroff=false
+				end
+			end
+		elseif GetPlayerState() == "Air" then
+			if EnableAirAA:GetValue() then
+				if ComobboxAutoDirectionModeAir:GetValue() == 1 then
+					if EnableJitterAir:GetValue() then
+						local JitterOffset=SliderJitterOffsetAir:GetValue()
+						local BaseYaw=BaseYawOffset
+						Jitter(BaseYaw,JitterOffset)
+						Jitteroff=true
+					else
+						Jitteroff=false
+					end
+				end
+			else
+				if EnableJitterGlobal:GetValue() then
+					local JitterOffset=SliderJitterOffsetGlobal:GetValue()
+					local BaseYaw=BaseYawOffset
+					Jitter(BaseYaw,JitterOffset)
+					Jitteroff=true
+				else
+					Jitteroff=false
+				end
+			end
+		end
+		if Jitteroff ~= true then
+			gui.SetValue("rbot.antiaim.base",BaseYawOffset)
+		end
+	end
+end
+function Jitter(BaseYaw,JitterOffset)
+	BaseYaw=math.ceil(BaseYaw)
+	JitterOffset=math.ceil(JitterOffset/2)
+	RightJitter=BaseYaw
+	LeftJitter=BaseYaw
+	if BaseYaw >= 0 then -- Left side
+		if BaseYaw + JitterOffset > 180 then
+			RightJitter=-180+(JitterOffset-(180-BaseYaw))
+		elseif BaseYaw + JitterOffset < 180 then
+			RightJitter=BaseYaw+JitterOffset
+		end
+		LeftJitter=BaseYaw-JitterOffset
+	elseif BaseYaw < 0 then --Right side
+		if BaseYaw - JitterOffset < -180 then
+			LeftJitter=180-(JitterOffset-(180-math.abs(BaseYaw)))
+		elseif BaseYaw - JitterOffset > -180 then
+			LeftJitter=BaseYaw-JitterOffset
+		end
+		RightJitter=BaseYaw+JitterOffset
+	end
+	if globals.TickCount() % 2 == 0 then
+		gui.SetValue("rbot.antiaim.base", LeftJitter);
+	end
+	if globals.TickCount() % 4 == 0 then
+		gui.SetValue("rbot.antiaim.base", RightJitter);
 	end
 end
 --function LegitAA
@@ -1181,10 +1713,6 @@ function LegitAAonUse()
 		gui.SetValue("rbot.antiaim.base",0)
 		gui.SetValue("rbot.antiaim.condition.use",0)
 	else
-		if EnableMayYawAA:GetValue()==false then
-			gui.SetValue("rbot.antiaim.base",defRotation)
-			gui.SetValue("rbot.antiaim.advanced.pitch")
-		end
 		gui.SetValue("rbot.antiaim.advanced.pitch",1)
 		gui.SetValue("rbot.antiaim.condition.use",1)
 	end
@@ -1260,12 +1788,7 @@ function Main()
 			DesyncInvertIndicator()
 		end
 	end
-	if EnableYaw:GetValue() and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue() and LocalPlayer~=nil then
-		if LocalPlayer:IsAlive() then
-			CustomMayYawAA()
-		end
-	end
-	if EnableYaw:GetValue() and EnableMayYawAA:GetValue() and EnableCustomMayYawAA:GetValue()==false and LocalPlayer~=nil then
+	if EnableYaw:GetValue() and EnableMayYawAA:GetValue() and LocalPlayer~=nil then
 		if LocalPlayer:IsAlive() then
 			MayYawAA()
 		end
@@ -1279,15 +1802,6 @@ function Main()
 		AspectRatio()
 		NightMode()
 	end
-	if EnableYaw:GetValue() and EnableAdvancedAtTarget:GetValue() and LocalPlayer~=nil and LocalPlayer:IsAlive() then
-		if EnableLagitAAonUse:GetValue()==false then
-			AdvancedAtTarget()
-		elseif EnableLagitAAonUse:GetValue() and input.IsButtonDown(69)==false then
-			AdvancedAtTarget()
-		elseif EnableLagitAAonUse:GetValue() and input.IsButtonDown(69)==true then
-			gui.SetValue("rbot.antiaim.advanced.autodir.targets", 1);
-		end
-	end
 	if EnableYaw:GetValue() then
 		DoubleFireMode()
 	end
@@ -1296,6 +1810,9 @@ function Main()
 	end
 	if EnableYaw:GetValue() then
 		DtDmgHpDiv2()
+	end
+	if EnableYaw:GetValue() and EnableIdealTick:GetValue() and LocalPlayer~=nil and LocalPlayer:IsAlive() then
+		IdealTick()
 	end
 end
 function AutoBuy(event)
@@ -1535,7 +2052,7 @@ function AspectRatio()
 	end
 	SetAspectRatioZero=false
 end
-function AdvancedAtTarget()
+function AdvancedAtTarget(JitterEnbale,JitterOffset)
 	local WightScreen,HightScreen=draw.GetScreenSize()
 	gui.SetValue("rbot.antiaim.advanced.autodir.targets", 0)
 	gui.SetValue("rbot.antiaim.advanced.autodir.edges", 0)
@@ -1601,9 +2118,35 @@ function AdvancedAtTarget()
 				
 			end
 			if Ugol < 0 then
-				gui.SetValue("rbot.antiaim.base",-180-Ugol)
+				Resault=-180-Ugol
 			elseif Ugol > 0  then
-				gui.SetValue("rbot.antiaim.base",180-Ugol)
+				Resault=180-Ugol
+			end
+			if JitterEnbale == false then
+				gui.SetValue("rbot.antiaim.base",Resault)
+				return
+			end
+			local BaseYaw=Resault
+			if BaseYaw >= 0 then -- Left side
+				if BaseYaw + JitterOffset > 180 then
+					RightJitter=-180+(JitterOffset-(180-BaseYaw))
+				elseif BaseYaw + JitterOffset < 180 then
+					RightJitter=BaseYaw+JitterOffset
+				end
+				LeftJitter=BaseYaw-JitterOffset
+			elseif BaseYaw < 0 then --Right side
+				if BaseYaw - JitterOffset < -180 then
+					LeftJitter=180-(JitterOffset-(180-math.abs(BaseYaw)))
+				elseif BaseYaw - JitterOffset > -180 then
+					LeftJitter=BaseYaw-JitterOffset
+				end
+				RightJitter=BaseYaw+JitterOffset
+ 			end
+			if globals.TickCount() % 2 == 0 then
+				gui.SetValue("rbot.antiaim.base", LeftJitter);
+			end
+			if globals.TickCount() % 4 == 0 then
+				gui.SetValue("rbot.antiaim.base", RightJitter);
 			end
 		end
 	end
@@ -1709,6 +2252,9 @@ function DtDmgHpDiv2()
 		return
 	end
 	local EnemyHp=RagebotTarget:GetHealth()
+	if EnemyHp == nil then
+		return
+	end
 	local Dmg=math.ceil(EnemyHp/2)
 	if Aimwaremenu:IsActive() then
 		if SetDmgIfMenuOpen==false then
@@ -1724,6 +2270,98 @@ function DtDmgHpDiv2()
 	SetDmgIfMenuOpen=false
 	SetDefDmg=false
 end
+function IdealTick()
+	local AutoPeekKey=gui.GetValue("rbot.accuracy.movement.autopeekkey")
+	if gui.GetValue( "rbot.accuracy.movement.autopeek" ) == false then
+		AutoPeekToggle=-1
+		return
+	end
+	if gui.GetValue("rbot.accuracy.movement.autopeektype")==0 and AutoPeekKey~=0 then
+		AutoPeekToggle=-1
+		if input.IsButtonDown(AutoPeekKey) then
+			if DefValueAutoPeekhold == true then
+				DefEhableFakeLag=gui.GetValue("misc.fakelag.enable")
+				DefValueFakelag=gui.GetValue("misc.fakelag.factor")
+				DefEnableFakeLatency=gui.GetValue("misc.fakelatency.enable")
+				DefValueFakeLatency=gui.GetValue("misc.fakelatency.amount")
+				DefScarDT=gui.GetValue("rbot.accuracy.weapon.asniper.doublefire")
+				DefAwpDT=gui.GetValue("rbot.accuracy.weapon.sniper.doublefire")
+				DefScotDT=gui.GetValue("rbot.accuracy.weapon.scout.doublefire")
+				DefHPistolDT=gui.GetValue("rbot.accuracy.weapon.hpistol.doublefire")
+				DefValueAutoPeekhold=false
+			end
+			gui.SetValue("misc.fakelag.enable",false)
+			gui.SetValue("misc.fakelag.factor",1)
+			gui.SetValue("misc.fakelatency.enable",true)
+			gui.SetValue("misc.fakelatency.amount",120)
+			gui.SetValue("rbot.accuracy.weapon.asniper.doublefire",2)
+			gui.SetValue("rbot.accuracy.weapon.sniper.doublefire",2)
+			gui.SetValue("rbot.accuracy.weapon.scout.doublefire",2)
+			gui.SetValue("rbot.accuracy.weapon.hpistol.doublefire",2)
+		end
+		if input.IsButtonReleased(AutoPeekKey) then
+			gui.SetValue("misc.fakelag.enable",DefEhableFakeLag)
+			gui.SetValue("misc.fakelag.factor",DefValueFakelag)
+			gui.SetValue("misc.fakelatency.enable",DefEnableFakeLatency)
+			gui.SetValue("misc.fakelatency.amount",DefValueFakeLatency)
+			gui.SetValue("rbot.accuracy.weapon.asniper.doublefire",DefScarDT)
+			gui.SetValue("rbot.accuracy.weapon.sniper.doublefire",DefAwpDT)
+			gui.SetValue("rbot.accuracy.weapon.scout.doublefire",DefScotDT)
+			gui.SetValue("rbot.accuracy.weapon.hpistol.doublefire",DefHPistolDT)
+			DefValueAutoPeekhold=true
+		end
+	elseif gui.GetValue("rbot.accuracy.movement.autopeektype")==1 and AutoPeekKey~=0 then
+		if Aimwaremenu:IsActive() then
+			return
+		end
+		if EnableKeybinds:GetValue() == false then
+			if input.IsButtonPressed( AutoPeekKey ) then
+				AutoPeekToggle=AutoPeekToggle*-1
+			end
+			KeyBindsToggleOnes=false
+		else
+			if KeyBindsToggleOnes==false then
+				AutoPeekToggle=-1
+				KeyBindsToggleOnes=true
+			end
+		end
+		if AutoPeekToggle == 1 then
+			if DefValueAutoPeekToggle==false then
+				DefEhableFakeLag=gui.GetValue("misc.fakelag.enable")
+				DefValueFakelag=gui.GetValue("misc.fakelag.factor")
+				DefEnableFakeLatency=gui.GetValue("misc.fakelatency.enable")
+				DefValueFakeLatency=gui.GetValue("misc.fakelatency.amount")
+				DefScarDT=gui.GetValue("rbot.accuracy.weapon.asniper.doublefire")
+				DefAwpDT=gui.GetValue("rbot.accuracy.weapon.sniper.doublefire")
+				DefScotDT=gui.GetValue("rbot.accuracy.weapon.scout.doublefire")
+				DefHPistolDT=gui.GetValue("rbot.accuracy.weapon.hpistol.doublefire")
+				DefValueAutoPeekToggle=true
+				SetDefValueAutoPeekToggle=false
+			end
+			gui.SetValue("misc.fakelag.enable",false)
+			gui.SetValue("misc.fakelag.factor",1)
+			gui.SetValue("misc.fakelatency.enable",true)
+			gui.SetValue("misc.fakelatency.amount",120)
+			gui.SetValue("rbot.accuracy.weapon.asniper.doublefire",2)
+			gui.SetValue("rbot.accuracy.weapon.sniper.doublefire",2)
+			gui.SetValue("rbot.accuracy.weapon.scout.doublefire",2)
+			gui.SetValue("rbot.accuracy.weapon.hpistol.doublefire",2)
+		elseif AutoPeekToggle ==-1 then
+			if SetDefValueAutoPeekToggle ==false then
+				gui.SetValue("misc.fakelag.enable",DefEhableFakeLag)
+				gui.SetValue("misc.fakelag.factor",DefValueFakelag)
+				gui.SetValue("misc.fakelatency.enable",DefEnableFakeLatency)
+				gui.SetValue("misc.fakelatency.amount",DefValueFakeLatency)
+				gui.SetValue("rbot.accuracy.weapon.asniper.doublefire",DefScarDT)
+				gui.SetValue("rbot.accuracy.weapon.sniper.doublefire",DefAwpDT)
+				gui.SetValue("rbot.accuracy.weapon.scout.doublefire",DefScotDT)
+				gui.SetValue("rbot.accuracy.weapon.hpistol.doublefire",DefHPistolDT)
+				SetDefValueAutoPeekToggle=true
+			end
+			DefValueAutoPeekToggle=false
+		end
+	end
+end
 callbacks.Register("AimbotTarget", function(enemy)
 	if enemy:GetIndex() ~=nil then
 		if entities.GetByIndex(enemy:GetIndex()):IsAlive() then
@@ -1731,7 +2369,6 @@ callbacks.Register("AimbotTarget", function(enemy)
 		end
 	end
 end)
-
 client.AllowListener("round_prestart");
 callbacks.Register("CreateMove",JumpScoutFix)
 callbacks.Register("Draw",Main)
