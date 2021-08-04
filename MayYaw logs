@@ -92,3 +92,14 @@ Version 1.6
 [=] Replaced clantag
 [=] Replaced JumpScout
 [=] Reworked keybinds drag
+-------------------------------------------------------
+Version 1.7
+05.08.2921
+[=]Reworked MayYawAA
+[+]Added Player State in MayYawAA (Standing, SlowMotion,Moving,Air)
+[+]Added Jitter in MayYawAA
+[+]Added Idealtick(Support Toggle and hold AutoPeek mode)
+[+]Added 2 AutoDirection mode (Default At Target, Advanced At Target)
+[=]Reworked Code System (Added encoder)
+[=]Reworked Config Tab Design
+[=]Reworked AutoBuy Design
